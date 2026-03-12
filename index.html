@@ -68,9 +68,18 @@
             id="sop-search-input"
             class="sop-search-input"
             placeholder="예: 요금 비싸다, 해지, 결합, 필름, 고객 거절"
+            oninput="handleSopSearchInput(event)"
           />
-          <button type="button" id="sop-search-clear" class="sop-search-clear">초기화</button>
+          <button
+            type="button"
+            id="sop-search-clear"
+            class="sop-search-clear"
+            onclick="clearSopSearch()"
+          >
+            초기화
+          </button>
         </div>
+
         <div id="sop-search-status" class="sop-search-status"></div>
 
         <div id="sop-category-grid" class="category-grid"></div>
