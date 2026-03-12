@@ -1,3 +1,5 @@
+let currentSopSearchQuery = "";
+
 function openSection(sectionId) {
   document.getElementById("home").classList.remove("active");
   document.getElementById("top-bar").classList.add("visible");
@@ -43,23 +45,66 @@ function switchTab(tabName, event) {
   }
 }
 
+function getSopSearchableText(row) {
+  return [
+    row.category,
+    row.title,
+    row.speech,
+    row.rebuttal,
+    row.icon,
+    row.order
+  ]
+    .map(v => normalizeText(v).toLowerCase())
+    .join(" ");
+}
+
 function renderSOP(data) {
   const categoryGrid = document.getElementById("sop-category-grid");
   const contentArea = document.getElementById("sop-content-area");
   const countBadge = document.getElementById("sop-count-badge");
+  const searchStatus = document.getElementById("sop-search-status");
 
   categoryGrid.innerHTML = "";
   contentArea.innerHTML = "";
 
   if (!data.length) {
     countBadge.textContent = "0개 카테고리";
+    if (searchStatus) searchStatus.textContent = "";
     contentArea.innerHTML = `<div class="empty-state">등록된 SOP 데이터가 없습니다.</div>`;
+    return;
+  }
+
+  const query = normalizeText(currentSopSearchQuery).toLowerCase();
+
+  const filteredData = query
+    ? data.filter(row => getSopSearchableText(row).includes(query))
+    : data;
+
+  if (searchStatus) {
+    if (query) {
+      searchStatus.textContent = filteredData.length
+        ? `‘${currentSopSearchQuery}’ 검색 결과 ${filteredData.length}건`
+        : `‘${currentSopSearchQuery}’ 검색 결과가 없습니다.`;
+    } else {
+      searchStatus.textContent = "";
+    }
+  }
+
+  if (!filteredData.length) {
+    countBadge.textContent = "0개 카테고리";
+    categoryGrid.innerHTML = "";
+    contentArea.innerHTML = `
+      <div class="empty-state">
+        검색 결과가 없습니다.<br>
+        다른 키워드로 다시 검색해 보세요.
+      </div>
+    `;
     return;
   }
 
   const groups = {};
 
-  data.forEach(row => {
+  filteredData.forEach(row => {
     const category = normalizeText(row.category) || "기타";
     const key = category;
 
@@ -145,3 +190,24 @@ function renderSOP(data) {
     contentArea.appendChild(groupDiv);
   });
 }
+
+function initSopSearch() {
+  const input = document.getElementById("sop-search-input");
+  const clearBtn = document.getElementById("sop-search-clear");
+
+  if (!input || !clearBtn) return;
+
+  input.addEventListener("input", (e) => {
+    currentSopSearchQuery = e.target.value;
+    renderSOP(sopData);
+  });
+
+  clearBtn.addEventListener("click", () => {
+    currentSopSearchQuery = "";
+    input.value = "";
+    renderSOP(sopData);
+    input.focus();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initSopSearch);
