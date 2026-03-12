@@ -66,7 +66,6 @@ function resetTestView() {
 }
 
 function startExam() {
-
   const nameInput = document.getElementById("planner-name-intro").value.trim();
 
   if (!nameInput) {
@@ -83,23 +82,19 @@ function startExam() {
   document.getElementById("display-name").innerText = nameInput;
 
   document.getElementById("top-bar").classList.remove("visible");
-
   document.getElementById("role-selector").style.display = "none";
   document.getElementById("planner-intro").style.display = "none";
   document.getElementById("planner-exam").style.display = "block";
 }
 
 function submitDynamicTest() {
-
   const name = document.getElementById("planner-name").value;
 
   let total = 0;
   const answerDetails = [];
 
   for (const key in dynamicTestAnswerKey) {
-
     const info = dynamicTestAnswerKey[key];
-
     const checked = document.querySelector(`input[name="${key}"]:checked`);
 
     if (!checked) {
@@ -132,7 +127,6 @@ function submitDynamicTest() {
   }
 
   const date = new Date().toLocaleString();
-
   const records = JSON.parse(localStorage.getItem("sopTestResults_ureem")) || [];
 
   records.push({
@@ -145,55 +139,38 @@ function submitDynamicTest() {
   localStorage.setItem("sopTestResults_ureem", JSON.stringify(records));
 
   alert(`${name} 플래너님, 답안이 제출되었습니다.\n수고하셨습니다.`);
-
   location.reload();
 }
 
 function checkManagerPassword() {
-
   const pwd = document.getElementById("manager-pwd").value;
 
   if (pwd === MANAGER_PASSWORD) {
-
     document.getElementById("login-area").style.display = "none";
     document.getElementById("dashboard-area").style.display = "block";
-
     loadResults();
-
   } else {
-
     alert("비밀번호가 틀렸습니다.");
-
   }
-
 }
 
 function toggleAnswerDetail(button, detailId) {
-
   const detailEl = document.getElementById(detailId);
-
   if (!detailEl) return;
 
   const isOpen = detailEl.style.display === "block";
-
   detailEl.style.display = isOpen ? "none" : "block";
-
   button.textContent = isOpen ? "상세보기" : "닫기";
-
 }
 
 function loadResults() {
-
   const records = JSON.parse(localStorage.getItem("sopTestResults_ureem")) || [];
-
   const tbody = document.getElementById("result-body");
 
   tbody.innerHTML = "";
 
   const tableHeadRow = document.querySelector("#result-table thead tr");
-
   if (tableHeadRow) {
-
     tableHeadRow.innerHTML = `
       <th>이름</th>
       <th>점수</th>
@@ -201,64 +178,73 @@ function loadResults() {
       <th>응시 시간</th>
       <th>상세</th>
     `;
-
   }
 
   if (!records.length) {
-
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">아직 응시한 플래너가 없습니다.</td></tr>';
-
     return;
-
   }
 
   records.slice().reverse().forEach((record, index) => {
-
     const detailId = `answer-detail-${index}`;
-
     let wrongNumbersText = `<span style="color:#16a34a; font-weight:800;">전부 정답</span>`;
+    let detailHtml = `<div id="${detailId}" style="display:none; margin-top:10px; color:#94a3b8;">기존 기록</div>`;
 
-    if (Array.isArray(record.answers)) {
+    if (Array.isArray(record.answers) && record.answers.length > 0) {
+      const wrongAnswers = record.answers.filter(answer => !answer.isCorrect);
 
-      const wrong = record.answers.filter(v => !v.isCorrect);
-
-      if (wrong.length) {
-
-        wrongNumbersText = wrong.map(v => `${v.questionNo}번`).join(", ");
-
+      if (wrongAnswers.length > 0) {
+        wrongNumbersText = wrongAnswers
+          .map(answer => `${answer.questionNo}번`)
+          .join(", ");
       }
 
+      detailHtml = `
+        <div id="${detailId}" style="display:none; margin-top:10px;">
+          ${record.answers.map(answer => `
+            <div style="margin-bottom:10px; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+              <div style="font-weight:800; color:#1e293b; margin-bottom:4px;">
+                ${escapeHtml(String(answer.questionNo))}. ${escapeHtml(answer.questionTitle)}
+              </div>
+              <div style="color:#475569; font-size:0.9rem; margin-bottom:3px;">
+                체크: ${escapeHtml(answer.selectedText || "-")}
+              </div>
+              <div style="color:${answer.isCorrect ? '#16a34a' : '#ef4444'}; font-size:0.88rem; font-weight:800;">
+                ${answer.isCorrect ? '정답' : `오답 (정답: ${escapeHtml(answer.correctText || "-")})`}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    } else {
+      wrongNumbersText = `<span style="color:#94a3b8;">기록 없음</span>`;
     }
 
     const row = `
       <tr>
-        <td style="font-weight:800;">${escapeHtml(record.name)}</td>
-        <td style="color:${record.score >= 80 ? "#e30678" : "#ef4444"}; font-weight:900;">${record.score}점</td>
-        <td style="font-weight:700;">${wrongNumbersText}</td>
-        <td style="color:#64748b; font-size:0.84rem;">${escapeHtml(record.date)}</td>
-        <td>
-          <button onclick="toggleAnswerDetail(this, '${detailId}')" 
-          style="padding:8px 12px;border:none;border-radius:8px;background:#e30678;color:#fff;font-weight:800;cursor:pointer;">
-          상세보기
+        <td style="font-weight:800; vertical-align:top;">${escapeHtml(record.name)}</td>
+        <td style="color:${record.score >= 80 ? "#e30678" : "#ef4444"}; font-weight:900; vertical-align:top;">${record.score}점</td>
+        <td style="vertical-align:top; font-weight:700; color:#334155;">${wrongNumbersText}</td>
+        <td style="color:#64748b; font-size:0.84rem; vertical-align:top;">${escapeHtml(record.date)}</td>
+        <td style="vertical-align:top; min-width:220px;">
+          <button
+            onclick="toggleAnswerDetail(this, '${detailId}')"
+            style="padding:8px 12px; border:none; border-radius:8px; background:#e30678; color:#fff; font-weight:800; cursor:pointer;"
+          >
+            상세보기
           </button>
+          ${detailHtml}
         </td>
       </tr>
     `;
 
     tbody.innerHTML += row;
-
   });
-
 }
 
 function clearData() {
-
   if (confirm("정말 모든 시험 기록을 삭제하시겠습니까? (복구 불가)")) {
-
     localStorage.removeItem("sopTestResults_ureem");
-
     loadResults();
-
   }
-
 }
