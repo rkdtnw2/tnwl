@@ -45,6 +45,21 @@ function switchTab(tabName, event) {
   }
 }
 
+function handleSopSearchInput(event) {
+  currentSopSearchQuery = event.target.value || "";
+  renderSOP(sopData);
+}
+
+function clearSopSearch() {
+  currentSopSearchQuery = "";
+  const input = document.getElementById("sop-search-input");
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+  renderSOP(sopData);
+}
+
 function getSopSearchableText(row) {
   return [
     row.category,
@@ -63,6 +78,8 @@ function renderSOP(data) {
   const contentArea = document.getElementById("sop-content-area");
   const countBadge = document.getElementById("sop-count-badge");
   const searchStatus = document.getElementById("sop-search-status");
+
+  if (!categoryGrid || !contentArea || !countBadge) return;
 
   categoryGrid.innerHTML = "";
   contentArea.innerHTML = "";
@@ -190,24 +207,3 @@ function renderSOP(data) {
     contentArea.appendChild(groupDiv);
   });
 }
-
-function initSopSearch() {
-  const input = document.getElementById("sop-search-input");
-  const clearBtn = document.getElementById("sop-search-clear");
-
-  if (!input || !clearBtn) return;
-
-  input.addEventListener("input", (e) => {
-    currentSopSearchQuery = e.target.value;
-    renderSOP(sopData);
-  });
-
-  clearBtn.addEventListener("click", () => {
-    currentSopSearchQuery = "";
-    input.value = "";
-    renderSOP(sopData);
-    input.focus();
-  });
-}
-
-document.addEventListener("DOMContentLoaded", initSopSearch);
