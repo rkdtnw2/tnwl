@@ -107,10 +107,8 @@ function submitDynamicTest() {
 
     const selectedValue = checked.value;
     const selectedText = questionData[`choice${selectedValue}`] || "";
-
     const correctValue = String(info.answer);
     const correctText = questionData[`choice${correctValue}`] || "";
-
     const isCorrect = selectedValue === correctValue;
 
     if (isCorrect) total += info.score;
@@ -118,9 +116,7 @@ function submitDynamicTest() {
     answerDetails.push({
       questionNo: questionNumber + 1,
       questionTitle: questionData.title || `${questionNumber + 1}번 문제`,
-      selectedValue,
       selectedText,
-      correctValue,
       correctText,
       isCorrect
     });
@@ -154,13 +150,14 @@ function checkManagerPassword() {
   }
 }
 
-function toggleAnswerDetail(button, detailId) {
-  const detailEl = document.getElementById(detailId);
-  if (!detailEl) return;
+function toggleAnswerDetail(index) {
+  const detailRow = document.getElementById(`detail-row-${index}`);
+  const btn = document.getElementById(`detail-btn-${index}`);
+  if (!detailRow || !btn) return;
 
-  const isOpen = detailEl.style.display === "block";
-  detailEl.style.display = isOpen ? "none" : "block";
-  button.textContent = isOpen ? "상세보기" : "닫기";
+  const isOpen = detailRow.style.display === "table-row";
+  detailRow.style.display = isOpen ? "none" : "table-row";
+  btn.textContent = isOpen ? "상세보기" : "닫기";
 }
 
 function loadResults() {
@@ -186,59 +183,55 @@ function loadResults() {
   }
 
   records.slice().reverse().forEach((record, index) => {
-    const detailId = `answer-detail-${index}`;
     let wrongNumbersText = `<span style="color:#16a34a; font-weight:800;">전부 정답</span>`;
-    let detailHtml = `<div id="${detailId}" style="display:none; margin-top:10px; color:#94a3b8;">기존 기록</div>`;
 
     if (Array.isArray(record.answers) && record.answers.length > 0) {
-      const wrongAnswers = record.answers.filter(answer => !answer.isCorrect);
-
-      if (wrongAnswers.length > 0) {
-        wrongNumbersText = wrongAnswers
-          .map(answer => `${answer.questionNo}번`)
-          .join(", ");
+      const wrongAnswers = record.answers.filter(v => !v.isCorrect);
+      if (wrongAnswers.length) {
+        wrongNumbersText = wrongAnswers.map(v => `${v.questionNo}번`).join(", ");
       }
-
-      detailHtml = `
-        <div id="${detailId}" style="display:none; margin-top:10px;">
-          ${record.answers.map(answer => `
-            <div style="margin-bottom:10px; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
-              <div style="font-weight:800; color:#1e293b; margin-bottom:4px;">
-                ${escapeHtml(String(answer.questionNo))}. ${escapeHtml(answer.questionTitle)}
-              </div>
-              <div style="color:#475569; font-size:0.9rem; margin-bottom:3px;">
-                체크: ${escapeHtml(answer.selectedText || "-")}
-              </div>
-              <div style="color:${answer.isCorrect ? '#16a34a' : '#ef4444'}; font-size:0.88rem; font-weight:800;">
-                ${answer.isCorrect ? '정답' : `오답 (정답: ${escapeHtml(answer.correctText || "-")})`}
-              </div>
-            </div>
-          `).join("")}
-        </div>
-      `;
     } else {
       wrongNumbersText = `<span style="color:#94a3b8;">기록 없음</span>`;
     }
 
-    const row = `
+    const detailItems = Array.isArray(record.answers) && record.answers.length
+      ? record.answers.map(answer => `
+          <div style="margin-bottom:10px; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+            <div style="font-weight:800; color:#1e293b; margin-bottom:4px;">
+              ${escapeHtml(String(answer.questionNo))}. ${escapeHtml(answer.questionTitle)}
+            </div>
+            <div style="color:#475569; font-size:0.9rem; margin-bottom:3px;">
+              체크: ${escapeHtml(answer.selectedText || "-")}
+            </div>
+            <div style="color:${answer.isCorrect ? "#16a34a" : "#ef4444"}; font-size:0.88rem; font-weight:800;">
+              ${answer.isCorrect ? "정답" : `오답 (정답: ${escapeHtml(answer.correctText || "-")})`}
+            </div>
+          </div>
+        `).join("")
+      : `<div style="color:#94a3b8;">상세 기록이 없습니다.</div>`;
+
+    tbody.innerHTML += `
       <tr>
         <td style="font-weight:800; vertical-align:top;">${escapeHtml(record.name)}</td>
         <td style="color:${record.score >= 80 ? "#e30678" : "#ef4444"}; font-weight:900; vertical-align:top;">${record.score}점</td>
         <td style="vertical-align:top; font-weight:700; color:#334155;">${wrongNumbersText}</td>
         <td style="color:#64748b; font-size:0.84rem; vertical-align:top;">${escapeHtml(record.date)}</td>
-        <td style="vertical-align:top; min-width:220px;">
+        <td style="vertical-align:top;">
           <button
-            onclick="toggleAnswerDetail(this, '${detailId}')"
+            id="detail-btn-${index}"
+            onclick="toggleAnswerDetail(${index})"
             style="padding:8px 12px; border:none; border-radius:8px; background:#e30678; color:#fff; font-weight:800; cursor:pointer;"
           >
             상세보기
           </button>
-          ${detailHtml}
+        </td>
+      </tr>
+      <tr id="detail-row-${index}" style="display:none;">
+        <td colspan="5" style="padding:12px; background:#fff8fc;">
+          ${detailItems}
         </td>
       </tr>
     `;
-
-    tbody.innerHTML += row;
   });
 }
 
