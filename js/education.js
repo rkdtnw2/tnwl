@@ -5,6 +5,8 @@ function getEduBgClass(index) {
 
 function renderEduTabs() {
   const eduTabs = document.getElementById("eduTabs");
+  if (!eduTabs) return;
+
   const categories = ["all", ...new Set(eduData.map(item => item.category))];
 
   eduTabs.innerHTML = categories.map(category => {
@@ -17,6 +19,8 @@ function renderEduTabs() {
 function renderEduCards() {
   const eduArea = document.getElementById("edu-content-area");
   const countBadge = document.getElementById("edu-count-badge");
+
+  if (!eduArea || !countBadge) return;
 
   const filtered = currentEduCategory === "all"
     ? eduData
@@ -32,19 +36,19 @@ function renderEduCards() {
   eduArea.innerHTML = filtered.map((item, index) => `
     <div class="edu-card-new ${hasImage(item.image) ? "" : getEduBgClass(index)}" data-id="${escapeHtml(item.id)}">
       <div class="edu-card-top-new">
-        <span class="edu-badge-new">${escapeHtml(item.category)}</span>
-        <div class="edu-icon-new">${escapeHtml(item.icon)}</div>
+        <span class="edu-badge-new">${escapeHtml(item.category || "기타")}</span>
+        <div class="edu-icon-new">${escapeHtml(item.icon || "📘")}</div>
       </div>
 
       ${hasImage(item.image) ? `
         <div class="edu-card-image-wrap">
-          <img class="edu-card-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy">
+          <img class="edu-card-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title || "상품자료")}" loading="lazy">
         </div>
       ` : ""}
 
       <div class="edu-card-bottom-new">
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.desc)}</p>
+        <h3>${escapeHtml(item.title || "제목 없음")}</h3>
+        <p>${escapeHtml(item.desc || "설명이 없습니다.")}</p>
         <div class="edu-meta-new">${escapeHtml(item.meta || "상품자료")}</div>
       </div>
     </div>
@@ -57,14 +61,14 @@ function renderEdu() {
 }
 
 function buildGalleryHtml(images, title) {
-  if (!images.length) return "";
+  if (!images || !images.length) return "";
 
   return images.map((img, idx) => `
     <div class="edu-gallery-item">
       <img
         class="edu-gallery-img"
         src="${escapeHtml(img)}"
-        alt="${escapeHtml(title)} ${idx + 1}"
+        alt="${escapeHtml(title || "상품자료")} ${idx + 1}"
         loading="lazy"
         onclick="openImageLightboxByIndex(${idx})"
       >
@@ -76,29 +80,41 @@ function openEduModalById(id) {
   const item = eduData.find(v => String(v.id) === String(id));
   if (!item) return;
 
-  document.getElementById("modalCategory").textContent = item.category;
-  document.getElementById("modalTitle").textContent = item.title;
-  document.getElementById("modalDesc").textContent = item.desc;
-  document.getElementById("modalScript").textContent = item.script;
-
+  const modalCategory = document.getElementById("modalCategory");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalDesc = document.getElementById("modalDesc");
+  const modalScript = document.getElementById("modalScript");
   const modalPoints = document.getElementById("modalPoints");
-  modalPoints.innerHTML = item.points.length
+  const modalGallery = document.getElementById("modalGallery");
+  const eduModal = document.getElementById("eduModal");
+
+  if (!modalCategory || !modalTitle || !modalDesc || !modalScript || !modalPoints || !modalGallery || !eduModal) return;
+
+  modalCategory.textContent = item.category || "기타";
+  modalTitle.textContent = item.title || "제목 없음";
+  modalDesc.textContent = item.desc || "설명이 없습니다.";
+  modalScript.textContent = item.script || "추천 멘트가 없습니다.";
+
+  modalPoints.innerHTML = Array.isArray(item.points) && item.points.length
     ? item.points.map(point => `<li>${escapeHtml(point)}</li>`).join("")
     : `<li>핵심 포인트가 없습니다.</li>`;
 
-  document.getElementById("modalGallery").innerHTML = buildGalleryHtml(item.images || [], item.title);
+  modalGallery.innerHTML = buildGalleryHtml(item.images || [], item.title);
 
   currentLightboxImages = item.images || [];
   currentLightboxTitle = item.title || "상품자료";
   currentLightboxIndex = 0;
 
-  document.getElementById("eduModal").classList.add("show");
+  eduModal.classList.add("show");
   document.body.style.overflow = "hidden";
 }
 
 function closeEduModal() {
-  document.getElementById("eduModal").classList.remove("show");
-  if (!document.getElementById("eduLightbox").classList.contains("show")) {
+  const eduModal = document.getElementById("eduModal");
+  const eduLightbox = document.getElementById("eduLightbox");
+
+  if (eduModal) eduModal.classList.remove("show");
+  if (!eduLightbox || !eduLightbox.classList.contains("show")) {
     document.body.style.overflow = "";
   }
 }
@@ -110,6 +126,7 @@ function updateLightboxView() {
   const prevBtn = document.getElementById("eduPrevBtn");
   const nextBtn = document.getElementById("eduNextBtn");
 
+  if (!lightbox || !img || !counter || !prevBtn || !nextBtn) return;
   if (!currentLightboxImages.length) return;
 
   img.src = currentLightboxImages[currentLightboxIndex];
@@ -144,48 +161,68 @@ function showNextImage() {
 function closeImageLightbox() {
   const lightbox = document.getElementById("eduLightbox");
   const img = document.getElementById("eduLightboxImg");
+  const eduModal = document.getElementById("eduModal");
 
-  lightbox.classList.remove("show");
-  img.src = "";
+  if (lightbox) lightbox.classList.remove("show");
+  if (img) img.src = "";
 
-  if (!document.getElementById("eduModal").classList.contains("show")) {
+  if (!eduModal || !eduModal.classList.contains("show")) {
     document.body.style.overflow = "";
   }
 }
 
-document.getElementById("eduTabs").addEventListener("click", (e) => {
-  const tab = e.target.closest(".edu-tab");
-  if (!tab) return;
+function initEducationEvents() {
+  const eduTabs = document.getElementById("eduTabs");
+  const eduContentArea = document.getElementById("edu-content-area");
+  const eduModalBackdrop = document.getElementById("eduModalBackdrop");
+  const eduModalClose = document.getElementById("eduModalClose");
+  const eduLightboxBackdrop = document.getElementById("eduLightboxBackdrop");
+  const eduLightboxClose = document.getElementById("eduLightboxClose");
+  const eduPrevBtn = document.getElementById("eduPrevBtn");
+  const eduNextBtn = document.getElementById("eduNextBtn");
 
-  currentEduCategory = tab.dataset.category;
-  renderEdu();
-});
+  if (eduTabs) {
+    eduTabs.addEventListener("click", (e) => {
+      const tab = e.target.closest(".edu-tab");
+      if (!tab) return;
 
-document.getElementById("edu-content-area").addEventListener("click", (e) => {
-  const card = e.target.closest(".edu-card-new");
-  if (!card) return;
-  openEduModalById(card.dataset.id);
-});
+      currentEduCategory = tab.dataset.category;
+      renderEdu();
+    });
+  }
 
-document.getElementById("eduModalBackdrop").addEventListener("click", closeEduModal);
-document.getElementById("eduModalClose").addEventListener("click", closeEduModal);
+  if (eduContentArea) {
+    eduContentArea.addEventListener("click", (e) => {
+      const card = e.target.closest(".edu-card-new");
+      if (!card) return;
+      openEduModalById(card.dataset.id);
+    });
+  }
 
-document.getElementById("eduLightboxBackdrop").addEventListener("click", closeImageLightbox);
-document.getElementById("eduLightboxClose").addEventListener("click", closeImageLightbox);
-document.getElementById("eduPrevBtn").addEventListener("click", showPrevImage);
-document.getElementById("eduNextBtn").addEventListener("click", showNextImage);
+  if (eduModalBackdrop) eduModalBackdrop.addEventListener("click", closeEduModal);
+  if (eduModalClose) eduModalClose.addEventListener("click", closeEduModal);
 
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    if (document.getElementById("eduLightbox").classList.contains("show")) {
-      closeImageLightbox();
-    } else {
-      closeEduModal();
+  if (eduLightboxBackdrop) eduLightboxBackdrop.addEventListener("click", closeImageLightbox);
+  if (eduLightboxClose) eduLightboxClose.addEventListener("click", closeImageLightbox);
+  if (eduPrevBtn) eduPrevBtn.addEventListener("click", showPrevImage);
+  if (eduNextBtn) eduNextBtn.addEventListener("click", showNextImage);
+
+  window.addEventListener("keydown", (e) => {
+    const lightbox = document.getElementById("eduLightbox");
+
+    if (e.key === "Escape") {
+      if (lightbox && lightbox.classList.contains("show")) {
+        closeImageLightbox();
+      } else {
+        closeEduModal();
+      }
     }
-  }
 
-  if (document.getElementById("eduLightbox").classList.contains("show")) {
-    if (e.key === "ArrowLeft") showPrevImage();
-    if (e.key === "ArrowRight") showNextImage();
-  }
-});
+    if (lightbox && lightbox.classList.contains("show")) {
+      if (e.key === "ArrowLeft") showPrevImage();
+      if (e.key === "ArrowRight") showNextImage();
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initEducationEvents);
