@@ -1,159 +1,1079 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOP 매뉴얼</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOP 매뉴얼</title>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-<link rel="stylesheet" href="css/style.css">
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
+    body {
+      margin: 0;
+      font-family: 'Pretendard', sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
 
-body{
-background:#f3f4f6;
-margin:0;
-font-family:Pretendard;
-}
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
 
-.wrap{
-max-width:1200px;
-margin:auto;
-padding:30px;
-}
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      border: none;
+      background: #111827;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-.title{
-font-size:36px;
-font-weight:900;
-margin-bottom:10px;
-}
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
 
-.desc{
-color:#6b7280;
-margin-bottom:30px;
-}
+    .title-area h1 {
+      margin: 0 0 8px;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+    }
 
-.chapter-list{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:20px;
-}
+    .title-area p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 18px;
+      line-height: 1.6;
+    }
 
-.chapter-card{
-background:white;
-border-radius:20px;
-overflow:hidden;
-box-shadow:0 6px 16px rgba(0,0,0,0.08);
-cursor:pointer;
-transition:.2s;
-}
+    .search-wrap {
+      min-width: 320px;
+      max-width: 460px;
+      width: 100%;
+    }
 
-.chapter-card:hover{
-transform:translateY(-4px);
-}
+    .search-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
 
-.chapter-thumb img{
-width:100%;
-height:160px;
-object-fit:cover;
-}
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-family: 'Pretendard', sans-serif;
+      padding: 8px 10px;
+      background: transparent;
+      color: #111827;
+    }
 
-.chapter-body{
-padding:18px;
-}
+    .search-btn,
+    .search-reset-btn {
+      border: none;
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
-.chapter-title{
-font-size:20px;
-font-weight:800;
-margin-bottom:10px;
-}
+    .search-btn {
+      background: #111827;
+    }
 
-.chapter-summary{
-color:#6b7280;
-font-size:14px;
-line-height:1.6;
-}
+    .search-reset-btn {
+      background: #d8006c;
+    }
 
-.top-btn{
-position:fixed;
-top:20px;
-left:20px;
-background:#d8006c;
-color:white;
-border:none;
-padding:10px 14px;
-border-radius:10px;
-cursor:pointer;
-font-weight:700;
-}
+    .search-msg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #d8006c;
+      min-height: 42px;
+      line-height: 1.6;
+      white-space: normal;
+    }
 
-</style>
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .chapter-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .chapter-card {
+      background: #fff;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      border: 1px solid #ececec;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+    }
+
+    .chapter-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    .chapter-thumb {
+      width: 100%;
+      height: 170px;
+      overflow: hidden;
+      background: #e5e7eb;
+    }
+
+    .chapter-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .chapter-body {
+      padding: 18px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .chapter-title {
+      font-size: 21px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      line-height: 1.4;
+      letter-spacing: -0.3px;
+    }
+
+    .chapter-summary {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 18px;
+      min-height: 66px;
+    }
+
+    .chapter-meta {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .chapter-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .chapter-label {
+      font-size: 13px;
+      color: #ec4899;
+      font-weight: 800;
+    }
+
+    .chapter-sub {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .chapter-btn {
+      min-width: 82px;
+      height: 56px;
+      border: none;
+      border-radius: 14px;
+      background: #f3f4f6;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid #ececec;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+
+    .panel-desc {
+      margin: 6px 0 0;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .back-btn {
+      border: none;
+      background: #111827;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .topic-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .topic-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 22px 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06);
+      border-color: #f3c0d8;
+    }
+
+    .topic-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: -0.2px;
+    }
+
+    .topic-card p {
+      margin: 0;
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .slide-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .slide-count {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .slide-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .slide-nav button {
+      border: none;
+      background: #ec4899;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .slide-nav button:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .slide-page {
+      display: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 24px;
+      background: #fafafa;
+    }
+
+    .slide-page.active {
+      display: block;
+    }
+
+    .slide-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .slide-title-input,
+    .slide-textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: 'Pretendard', sans-serif;
+      background: #fff;
+      outline: none;
+    }
+
+    .slide-title-input {
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .slide-textarea {
+      min-height: 320px;
+      resize: vertical;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .image-box {
+      background: #fff;
+      border: 1px dashed #d1d5db;
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .image-box input[type="file"] {
+      width: 100%;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .preview {
+      width: 100%;
+      height: 320px;
+      border-radius: 14px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 14px;
+      overflow: hidden;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .slide-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .slide-dots button {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: none;
+      background: #e5e7eb;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .slide-dots button.active {
+      background: #111827;
+      color: #fff;
+    }
+
+    @media (max-width: 1100px) {
+      .chapter-list,
+      .topic-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .slide-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .chapter-list,
+      .topic-list {
+        grid-template-columns: 1fr;
+      }
+
+      .title-area h1 {
+        font-size: 32px;
+      }
+
+      .title-area p {
+        font-size: 16px;
+      }
+
+      .search-wrap {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+      }
+
+      .search-area {
+        flex-wrap: wrap;
+      }
+
+      .search-btn,
+      .search-reset-btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <button class="home-btn" onclick="location.href='index.html'">← 홈으로</button>
 
-<button class="top-btn" onclick="location.href='index.html'">
-← 홈으로
-</button>
+    <div class="top-bar">
+      <div class="title-area">
+        <h1>SOP 매뉴얼</h1>
+        <p>교육 챕터와 주제를 체계적으로 정리하고 바로 찾아볼 수 있는 페이지</p>
+      </div>
 
-<div class="wrap">
+      <div class="search-wrap">
+        <div class="search-area">
+          <input
+            id="globalSearchInput"
+            class="search-input"
+            type="text"
+            placeholder="챕터, 교육 주제, 슬라이드 제목/내용 검색"
+            onkeydown="handleSearchEnter(event)"
+            oninput="resetSearchState()"
+          />
+          <button class="search-btn" onclick="searchKeyword()">검색</button>
+          <button class="search-reset-btn" onclick="resetAllSearch()">초기화</button>
+        </div>
+        <div id="searchMsg" class="search-msg"></div>
+      </div>
+    </div>
 
-<div class="title">SOP 매뉴얼</div>
-<div class="desc">
-교육 챕터와 주제를 체계적으로 정리하고 바로 찾아볼 수 있습니다.
-</div>
+    <div id="mainView" class="view active">
+      <div class="chapter-list" id="chapterList"></div>
+    </div>
 
-<div class="chapter-list">
+    <div id="chapterView" class="view">
+      <div class="panel">
+        <div class="panel-top">
+          <div>
+            <h2 id="chapterViewTitle" class="panel-title">챕터 1</h2>
+            <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
+          </div>
+          <button class="back-btn" onclick="showMain()">목록으로</button>
+        </div>
+        <div class="topic-list" id="topicList"></div>
+      </div>
+    </div>
 
-<div class="chapter-card">
-<div class="chapter-thumb">
-<img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f">
-</div>
-<div class="chapter-body">
-<div class="chapter-title">챕터 1 교육 진행</div>
-<div class="chapter-summary">
-교육 오리엔테이션, 기본 화법, 응대 흐름 등 핵심 내용을 정리
-</div>
-</div>
-</div>
+    <div id="topicView" class="view">
+      <div class="panel">
+        <div class="panel-top">
+          <div>
+            <h2 id="topicViewTitle" class="panel-title">교육 주제</h2>
+            <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 작성하고 이미지를 업로드하세요.</p>
+          </div>
+          <button class="back-btn" onclick="backToChapter()">주제 목록으로</button>
+        </div>
 
-<div class="chapter-card">
-<div class="chapter-thumb">
-<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3">
-</div>
-<div class="chapter-body">
-<div class="chapter-title">챕터 2 실전 응대</div>
-<div class="chapter-summary">
-실제 고객 질문 대응, 비교 설명, 거절 대응
-</div>
-</div>
-</div>
+        <div class="slide-toolbar">
+          <div id="slideCount" class="slide-count">슬라이드 1 / 10</div>
+          <div class="slide-nav">
+            <button id="prevSlideBtn" onclick="moveSlide(-1)">이전</button>
+            <button id="nextSlideBtn" onclick="moveSlide(1)">다음</button>
+          </div>
+        </div>
 
-<div class="chapter-card">
-<div class="chapter-thumb">
-<img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40">
-</div>
-<div class="chapter-body">
-<div class="chapter-title">챕터 3 상품 설명</div>
-<div class="chapter-summary">
-요금제, 결합상품, 부가서비스 설명
-</div>
-</div>
-</div>
+        <div id="slidePages"></div>
+        <div id="slideDots" class="slide-dots"></div>
+      </div>
+    </div>
+  </div>
 
-<div class="chapter-card">
-<div class="chapter-thumb">
-<img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f">
-</div>
-<div class="chapter-body">
-<div class="chapter-title">챕터 4 피드백</div>
-<div class="chapter-summary">
-교육 피드백과 평가 기준 정리
-</div>
-</div>
-</div>
+  <script>
+    const appData = [
+      {
+        id: 'chapter1',
+        title: '챕터 1 교육 진행',
+        summary: '교육 오리엔테이션, 기본 화법, 응대 흐름 등 핵심 내용을 정리하는 챕터입니다.',
+        label: '기본 교육',
+        sub: '주제 4개',
+        image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop',
+        topics: [
+          {
+            id: 'c1t1',
+            title: '교육 오리엔테이션',
+            summary: '교육 목적과 전체 흐름을 소개하는 주제입니다.',
+            slides: createSlides('교육 오리엔테이션')
+          },
+          {
+            id: 'c1t2',
+            title: '기본 인사 화법',
+            summary: '첫 인사와 기본 응대 멘트를 정리하는 주제입니다.',
+            slides: createSlides('기본 인사 화법')
+          },
+          {
+            id: 'c1t3',
+            title: '고객 응대 순서',
+            summary: '상담 시작부터 마무리까지 순서를 정리하는 주제입니다.',
+            slides: createSlides('고객 응대 순서')
+          },
+          {
+            id: 'c1t4',
+            title: '교육 마무리',
+            summary: '핵심 요약과 마무리 멘트를 정리하는 주제입니다.',
+            slides: createSlides('교육 마무리')
+          }
+        ]
+      },
+      {
+        id: 'chapter2',
+        title: '챕터 2 실전 응대',
+        summary: '실제 고객 질문 대응, 비교 설명, 거절 대응 등 실전 응대 중심 챕터입니다.',
+        label: '실전 응대',
+        sub: '주제 4개',
+        image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+        topics: [
+          {
+            id: 'c2t1',
+            title: '고객 질문 대응',
+            summary: '자주 나오는 질문에 대한 답변 구조를 정리합니다.',
+            slides: createSlides('고객 질문 대응')
+          },
+          {
+            id: 'c2t2',
+            title: '비교 설명 화법',
+            summary: '상품 간 차이를 쉽게 설명하는 주제입니다.',
+            slides: createSlides('비교 설명 화법')
+          },
+          {
+            id: 'c2t3',
+            title: '거절 대응 화법',
+            summary: '거절 상황에서 자연스럽게 이어가는 방법을 정리합니다.',
+            slides: createSlides('거절 대응 화법')
+          },
+          {
+            id: 'c2t4',
+            title: '실전 롤플레잉',
+            summary: '상황별 응대 연습을 정리하는 주제입니다.',
+            slides: createSlides('실전 롤플레잉')
+          }
+        ]
+      },
+      {
+        id: 'chapter3',
+        title: '챕터 3 상품 설명',
+        summary: '요금제, 결합상품, 부가서비스 등 상품 설명 중심 챕터입니다.',
+        label: '상품 설명',
+        sub: '주제 4개',
+        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop',
+        topics: [
+          {
+            id: 'c3t1',
+            title: '요금제 설명',
+            summary: '요금제를 쉽게 설명하는 주제입니다.',
+            slides: createSlides('요금제 설명')
+          },
+          {
+            id: 'c3t2',
+            title: '결합상품 설명',
+            summary: '결합 장점을 고객 관점에서 설명하는 주제입니다.',
+            slides: createSlides('결합상품 설명')
+          },
+          {
+            id: 'c3t3',
+            title: '부가서비스 설명',
+            summary: '부가서비스를 자연스럽게 제안하는 주제입니다.',
+            slides: createSlides('부가서비스 설명')
+          },
+          {
+            id: 'c3t4',
+            title: '추천 멘트 정리',
+            summary: '상황별 추천 멘트를 정리하는 주제입니다.',
+            slides: createSlides('추천 멘트 정리')
+          }
+        ]
+      },
+      {
+        id: 'chapter4',
+        title: '챕터 4 피드백/평가',
+        summary: '교육 피드백, 체크리스트, 마무리 평가를 정리하는 챕터입니다.',
+        label: '피드백',
+        sub: '주제 4개',
+        image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1200&auto=format&fit=crop',
+        topics: [
+          {
+            id: 'c4t1',
+            title: '교육 피드백',
+            summary: '교육 후 개선점을 정리하는 주제입니다.',
+            slides: createSlides('교육 피드백')
+          },
+          {
+            id: 'c4t2',
+            title: '현장 체크리스트',
+            summary: '현장 점검 항목을 정리하는 주제입니다.',
+            slides: createSlides('현장 체크리스트')
+          },
+          {
+            id: 'c4t3',
+            title: '평가 기준',
+            summary: '평가 요소와 기준을 정리하는 주제입니다.',
+            slides: createSlides('평가 기준')
+          },
+          {
+            id: 'c4t4',
+            title: '최종 마무리',
+            summary: '교육 종료 시 마무리 내용을 정리하는 주제입니다.',
+            slides: createSlides('최종 마무리')
+          }
+        ]
+      }
+    ];
 
-</div>
-</div>
+    function createSlides(topicTitle) {
+      const slides = [];
+      for (let i = 1; i <= 10; i++) {
+        slides.push({
+          title: topicTitle + ' - 슬라이드 ' + i,
+          content: '',
+          image: ''
+        });
+      }
+      return slides;
+    }
 
+    const mainView = document.getElementById('mainView');
+    const chapterView = document.getElementById('chapterView');
+    const topicView = document.getElementById('topicView');
+
+    const chapterList = document.getElementById('chapterList');
+    const topicList = document.getElementById('topicList');
+    const chapterViewTitle = document.getElementById('chapterViewTitle');
+    const chapterViewDesc = document.getElementById('chapterViewDesc');
+    const topicViewTitle = document.getElementById('topicViewTitle');
+    const topicViewDesc = document.getElementById('topicViewDesc');
+    const slidePages = document.getElementById('slidePages');
+    const slideDots = document.getElementById('slideDots');
+    const slideCount = document.getElementById('slideCount');
+    const prevSlideBtn = document.getElementById('prevSlideBtn');
+    const nextSlideBtn = document.getElementById('nextSlideBtn');
+    const searchMsg = document.getElementById('searchMsg');
+    const globalSearchInput = document.getElementById('globalSearchInput');
+
+    let currentChapterIndex = null;
+    let currentTopicIndex = null;
+    let currentSlideIndex = 0;
+
+    let searchResults = [];
+    let currentSearchIndex = -1;
+    let lastKeyword = '';
+
+    function renderChapters() {
+      chapterList.innerHTML = appData.map((chapter, index) => `
+        <div class="chapter-card" onclick="openChapter(${index})">
+          <div class="chapter-thumb">
+            <img src="${chapter.image}" alt="${escapeHtml(chapter.title)}">
+          </div>
+          <div class="chapter-body">
+            <h3 class="chapter-title">${escapeHtml(chapter.title)}</h3>
+            <div class="chapter-summary">${escapeHtml(chapter.summary)}</div>
+            <div class="chapter-meta">
+              <div class="chapter-info">
+                <span class="chapter-label">${escapeHtml(chapter.label)}</span>
+                <span class="chapter-sub">${escapeHtml(chapter.sub)}</span>
+              </div>
+              <button class="chapter-btn" type="button">들어가기</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openChapter(index) {
+      currentChapterIndex = index;
+      const chapter = appData[index];
+
+      chapterViewTitle.textContent = chapter.title;
+      chapterViewDesc.textContent = '챕터 안의 교육 주제를 선택하세요.';
+
+      topicList.innerHTML = chapter.topics.map((topic, topicIndex) => `
+        <div class="topic-card" onclick="openTopic(${topicIndex})">
+          <h3>${escapeHtml(topic.title)}</h3>
+          <p>${escapeHtml(topic.summary)}</p>
+        </div>
+      `).join('');
+
+      showView('chapter');
+    }
+
+    function openTopic(topicIndex) {
+      currentTopicIndex = topicIndex;
+      currentSlideIndex = 0;
+
+      const chapter = appData[currentChapterIndex];
+      const topic = chapter.topics[topicIndex];
+
+      topicViewTitle.textContent = topic.title;
+      topicViewDesc.textContent = '슬라이드 내용을 작성하고 이미지를 업로드하세요.';
+
+      renderSlides();
+      showView('topic');
+    }
+
+    function renderSlides() {
+      const topic = appData[currentChapterIndex].topics[currentTopicIndex];
+
+      slidePages.innerHTML = topic.slides.map((slide, idx) => `
+        <div class="slide-page ${idx === currentSlideIndex ? 'active' : ''}">
+          <div class="slide-layout">
+            <div>
+              <label class="field-label">슬라이드 제목</label>
+              <input
+                class="slide-title-input"
+                type="text"
+                value="${escapeAttr(slide.title)}"
+                oninput="updateSlideTitle(${idx}, this.value)"
+                placeholder="슬라이드 제목을 입력하세요"
+              />
+
+              <label class="field-label">슬라이드 내용</label>
+              <textarea
+                class="slide-textarea"
+                oninput="updateSlideContent(${idx}, this.value)"
+                placeholder="교육 내용을 입력하세요"
+              >${escapeHtml(slide.content)}</textarea>
+            </div>
+
+            <div class="image-box">
+              <label class="field-label">이미지 업로드</label>
+              <input type="file" accept="image/*" onchange="previewImage(event, ${idx})" />
+              <div class="preview" id="preview-${idx}">
+                ${slide.image ? `<img src="${slide.image}" alt="미리보기">` : '이미지를 업로드하세요'}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      slideDots.innerHTML = topic.slides.map((_, idx) => `
+        <button class="${idx === currentSlideIndex ? 'active' : ''}" onclick="goSlide(${idx})">${idx + 1}</button>
+      `).join('');
+
+      updateSlideToolbar();
+    }
+
+    function updateSlideToolbar() {
+      const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
+      slideCount.textContent = `슬라이드 ${currentSlideIndex + 1} / ${total}`;
+      prevSlideBtn.disabled = currentSlideIndex === 0;
+      nextSlideBtn.disabled = currentSlideIndex === total - 1;
+    }
+
+    function moveSlide(direction) {
+      const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
+      const next = currentSlideIndex + direction;
+      if (next < 0 || next >= total) return;
+      currentSlideIndex = next;
+      renderSlides();
+    }
+
+    function goSlide(index) {
+      currentSlideIndex = index;
+      renderSlides();
+    }
+
+    function updateSlideTitle(index, value) {
+      appData[currentChapterIndex].topics[currentTopicIndex].slides[index].title = value;
+    }
+
+    function updateSlideContent(index, value) {
+      appData[currentChapterIndex].topics[currentTopicIndex].slides[index].content = value;
+    }
+
+    function previewImage(event, slideIndex) {
+      const file = event.target.files[0];
+      const previewEl = document.getElementById(`preview-${slideIndex}`);
+
+      if (!file) {
+        appData[currentChapterIndex].topics[currentTopicIndex].slides[slideIndex].image = '';
+        previewEl.innerHTML = '이미지를 업로드하세요';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageData = e.target.result;
+        appData[currentChapterIndex].topics[currentTopicIndex].slides[slideIndex].image = imageData;
+        previewEl.innerHTML = `<img src="${imageData}" alt="미리보기">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showMain() {
+      showView('main');
+    }
+
+    function backToChapter() {
+      showView('chapter');
+    }
+
+    function showView(name) {
+      mainView.classList.remove('active');
+      chapterView.classList.remove('active');
+      topicView.classList.remove('active');
+
+      if (name === 'main') mainView.classList.add('active');
+      if (name === 'chapter') chapterView.classList.add('active');
+      if (name === 'topic') topicView.classList.add('active');
+    }
+
+    function handleSearchEnter(event) {
+      if (event.key === 'Enter') {
+        searchKeyword();
+      }
+    }
+
+    function resetSearchState() {
+      const currentKeyword = globalSearchInput.value.trim().toLowerCase();
+
+      if (currentKeyword !== lastKeyword) {
+        searchResults = [];
+        currentSearchIndex = -1;
+        lastKeyword = currentKeyword;
+      }
+
+      if (!currentKeyword) {
+        clearSearchMsg();
+      }
+    }
+
+    function resetAllSearch() {
+      globalSearchInput.value = '';
+      searchResults = [];
+      currentSearchIndex = -1;
+      lastKeyword = '';
+      clearSearchMsg();
+      showMain();
+    }
+
+    function collectSearchResults(keyword) {
+      const results = [];
+
+      for (let c = 0; c < appData.length; c++) {
+        const chapter = appData[c];
+
+        if (
+          (chapter.title || '').toLowerCase().includes(keyword) ||
+          (chapter.summary || '').toLowerCase().includes(keyword)
+        ) {
+          results.push({
+            type: 'chapter',
+            chapterIndex: c
+          });
+        }
+
+        for (let t = 0; t < chapter.topics.length; t++) {
+          const topic = chapter.topics[t];
+
+          if (
+            (topic.title || '').toLowerCase().includes(keyword) ||
+            (topic.summary || '').toLowerCase().includes(keyword)
+          ) {
+            results.push({
+              type: 'topic',
+              chapterIndex: c,
+              topicIndex: t
+            });
+          }
+
+          for (let s = 0; s < topic.slides.length; s++) {
+            const slide = topic.slides[s];
+
+            if (
+              (slide.title || '').toLowerCase().includes(keyword) ||
+              (slide.content || '').toLowerCase().includes(keyword)
+            ) {
+              results.push({
+                type: 'slide',
+                chapterIndex: c,
+                topicIndex: t,
+                slideIndex: s
+              });
+            }
+          }
+        }
+      }
+
+      return results;
+    }
+
+    function getChapterName(index) {
+      return appData[index]?.title || '';
+    }
+
+    function getTopicName(chapterIndex, topicIndex) {
+      return appData[chapterIndex]?.topics?.[topicIndex]?.title || '';
+    }
+
+    function searchKeyword() {
+      const rawKeyword = globalSearchInput.value.trim();
+      const keyword = rawKeyword.toLowerCase();
+
+      if (!keyword) {
+        setSearchMsg('검색어를 입력해주세요.');
+        searchResults = [];
+        currentSearchIndex = -1;
+        lastKeyword = '';
+        return;
+      }
+
+      if (lastKeyword !== keyword || searchResults.length === 0) {
+        searchResults = collectSearchResults(keyword);
+        currentSearchIndex = -1;
+        lastKeyword = keyword;
+      }
+
+      if (!searchResults.length) {
+        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과가 없습니다.`);
+        return;
+      }
+
+      currentSearchIndex++;
+      if (currentSearchIndex >= searchResults.length) {
+        currentSearchIndex = 0;
+      }
+
+      const result = searchResults[currentSearchIndex];
+      const chapterName = getChapterName(result.chapterIndex);
+      const topicName = result.topicIndex !== undefined
+        ? getTopicName(result.chapterIndex, result.topicIndex)
+        : '';
+
+      if (result.type === 'chapter') {
+        openChapter(result.chapterIndex);
+        setSearchMsg(
+          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)}`
+        );
+        return;
+      }
+
+      if (result.type === 'topic') {
+        openChapter(result.chapterIndex);
+        openTopic(result.topicIndex);
+        setSearchMsg(
+          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)}`
+        );
+        return;
+      }
+
+      if (result.type === 'slide') {
+        openChapter(result.chapterIndex);
+        openTopic(result.topicIndex);
+        currentSlideIndex = result.slideIndex;
+        renderSlides();
+        setSearchMsg(
+          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)} > ${result.slideIndex + 1}번 슬라이드`
+        );
+      }
+    }
+
+    function setSearchMsg(message) {
+      searchMsg.innerHTML = message;
+    }
+
+    function clearSearchMsg() {
+      searchMsg.innerHTML = '';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    renderChapters();
+  </script>
 </body>
 </html>
