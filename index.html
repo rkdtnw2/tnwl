@@ -53,37 +53,45 @@
     </div>
 
     <section id="sop" class="section-content">
-      <div class="section-shell">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <h3>📖 SOP 매뉴얼</h3>
-            <p>카테고리별 현장 대응 상황과 실전 화법을 확인하세요.</p>
+      <div class="section-shell sop-shell-new">
+        <div class="sop-hero-new">
+          <div class="sop-hero-left">
+            <div class="sop-hero-kicker">SOP MANUAL</div>
+            <h3 class="sop-hero-title">📖 SOP 매뉴얼</h3>
+            <p class="sop-hero-desc">
+              카테고리별 현장 대응 상황과 실전 화법을 빠르게 찾아보고,
+              필요한 응대 흐름을 바로 확인하세요.
+            </p>
           </div>
+
+          <div class="sop-hero-right">
+            <div class="sop-search-wrap sop-search-wrap-new">
+              <input
+                type="text"
+                id="sop-search-input"
+                class="sop-search-input"
+                placeholder="예: 요금 비싸다, 해지, 결합, 필름, 고객 거절"
+                oninput="handleSopSearchInput(event)"
+              />
+              <button
+                type="button"
+                id="sop-search-clear"
+                class="sop-search-clear"
+                onclick="clearSopSearch()"
+              >
+                초기화
+              </button>
+            </div>
+            <div id="sop-search-status" class="sop-search-status"></div>
+          </div>
+        </div>
+
+        <div class="sop-summary-row">
           <div class="data-badge" id="sop-count-badge">로딩 중...</div>
         </div>
 
-        <div class="sop-search-wrap">
-          <input
-            type="text"
-            id="sop-search-input"
-            class="sop-search-input"
-            placeholder="예: 요금 비싸다, 해지, 결합, 필름, 고객 거절"
-            oninput="handleSopSearchInput(event)"
-          />
-          <button
-            type="button"
-            id="sop-search-clear"
-            class="sop-search-clear"
-            onclick="clearSopSearch()"
-          >
-            초기화
-          </button>
-        </div>
-
-        <div id="sop-search-status" class="sop-search-status"></div>
-
-        <div id="sop-category-grid" class="category-grid"></div>
-        <div id="sop-content-area"></div>
+        <div id="sop-category-grid" class="category-grid sop-category-grid-new"></div>
+        <div id="sop-content-area" class="sop-content-area-new"></div>
       </div>
     </section>
 
