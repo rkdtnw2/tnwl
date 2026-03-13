@@ -310,49 +310,53 @@ async function fetchEduSheetData() {
 }
 
 function setLoadingState() {
-  document.getElementById("sop-category-grid").innerHTML = "";
-  document.getElementById("sop-content-area").innerHTML = `
-    <div class="loading-state">
-      <strong>데이터를 불러오는 중입니다.</strong>
-      <div>구글시트 CSV 데이터를 읽고 있어요.</div>
-    </div>
-  `;
-  document.getElementById("eduTabs").innerHTML = "";
-  document.getElementById("edu-content-area").innerHTML = `
-    <div class="loading-state">
-      <strong>상품자료를 불러오는 중입니다.</strong>
-      <div>잠시만 기다려 주세요.</div>
-    </div>
-  `;
-  document.getElementById("test-question-area").innerHTML = `
-    <div class="loading-state">
-      <strong>테스트 문항을 불러오는 중입니다.</strong>
-      <div>잠시만 기다려 주세요.</div>
-    </div>
-  `;
+  const eduTabs = document.getElementById("eduTabs");
+  const eduContentArea = document.getElementById("edu-content-area");
+  const testQuestionArea = document.getElementById("test-question-area");
+
+  if (eduTabs) eduTabs.innerHTML = "";
+  if (eduContentArea) {
+    eduContentArea.innerHTML = `
+      <div class="loading-state">
+        <strong>상품자료를 불러오는 중입니다.</strong>
+        <div>잠시만 기다려 주세요.</div>
+      </div>
+    `;
+  }
+
+  if (testQuestionArea) {
+    testQuestionArea.innerHTML = `
+      <div class="loading-state">
+        <strong>테스트 문항을 불러오는 중입니다.</strong>
+        <div>잠시만 기다려 주세요.</div>
+      </div>
+    `;
+  }
 }
 
 function setErrorState(message) {
-  document.getElementById("sop-content-area").innerHTML = `
-    <div class="error-state">
-      <strong>데이터 로드 실패</strong>
-      <div>${escapeHtml(message)}</div>
-      <div class="muted" style="margin-top:8px;">CSV URL과 구글시트 웹 게시 상태를 확인해 주세요.</div>
-    </div>
-  `;
-  document.getElementById("eduTabs").innerHTML = "";
-  document.getElementById("edu-content-area").innerHTML = `
-    <div class="error-state">
-      <strong>상품자료 로드 실패</strong>
-      <div>${escapeHtml(message)}</div>
-    </div>
-  `;
-  document.getElementById("test-question-area").innerHTML = `
-    <div class="error-state">
-      <strong>테스트 로드 실패</strong>
-      <div>${escapeHtml(message)}</div>
-    </div>
-  `;
+  const eduTabs = document.getElementById("eduTabs");
+  const eduContentArea = document.getElementById("edu-content-area");
+  const testQuestionArea = document.getElementById("test-question-area");
+
+  if (eduTabs) eduTabs.innerHTML = "";
+  if (eduContentArea) {
+    eduContentArea.innerHTML = `
+      <div class="error-state">
+        <strong>상품자료 로드 실패</strong>
+        <div>${escapeHtml(message)}</div>
+      </div>
+    `;
+  }
+
+  if (testQuestionArea) {
+    testQuestionArea.innerHTML = `
+      <div class="error-state">
+        <strong>테스트 로드 실패</strong>
+        <div>${escapeHtml(message)}</div>
+      </div>
+    `;
+  }
 }
 
 async function initGoogleSheetContent() {
@@ -377,9 +381,8 @@ async function initGoogleSheetContent() {
       eduData = FALLBACK_EDU_DATA;
     }
 
-    renderSOP(sopData);
-    renderEdu();
-    renderTest(testData);
+    if (typeof renderEdu === "function") renderEdu();
+    if (typeof renderTest === "function") renderTest(testData);
   } catch (error) {
     console.error(error);
     setErrorState(error.message || "알 수 없는 오류가 발생했습니다.");
