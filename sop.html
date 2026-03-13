@@ -1,1 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOP 매뉴얼</title>
 
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+body{
+background:#f3f4f6;
+margin:0;
+font-family:Pretendard;
+}
+
+.wrap{
+max-width:1200px;
+margin:auto;
+padding:30px;
+}
+
+.title{
+font-size:36px;
+font-weight:900;
+margin-bottom:10px;
+}
+
+.desc{
+color:#6b7280;
+margin-bottom:30px;
+}
+
+.chapter-list{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.chapter-card{
+background:white;
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 6px 16px rgba(0,0,0,0.08);
+cursor:pointer;
+transition:.2s;
+}
+
+.chapter-card:hover{
+transform:translateY(-4px);
+}
+
+.chapter-thumb img{
+width:100%;
+height:160px;
+object-fit:cover;
+}
+
+.chapter-body{
+padding:18px;
+}
+
+.chapter-title{
+font-size:20px;
+font-weight:800;
+margin-bottom:10px;
+}
+
+.chapter-summary{
+color:#6b7280;
+font-size:14px;
+line-height:1.6;
+}
+
+.top-btn{
+position:fixed;
+top:20px;
+left:20px;
+background:#d8006c;
+color:white;
+border:none;
+padding:10px 14px;
+border-radius:10px;
+cursor:pointer;
+font-weight:700;
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="top-btn" onclick="location.href='index.html'">
+← 홈으로
+</button>
+
+<div class="wrap">
+
+<div class="title">SOP 매뉴얼</div>
+<div class="desc">
+교육 챕터와 주제를 체계적으로 정리하고 바로 찾아볼 수 있습니다.
+</div>
+
+<div class="chapter-list">
+
+<div class="chapter-card">
+<div class="chapter-thumb">
+<img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f">
+</div>
+<div class="chapter-body">
+<div class="chapter-title">챕터 1 교육 진행</div>
+<div class="chapter-summary">
+교육 오리엔테이션, 기본 화법, 응대 흐름 등 핵심 내용을 정리
+</div>
+</div>
+</div>
+
+<div class="chapter-card">
+<div class="chapter-thumb">
+<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3">
+</div>
+<div class="chapter-body">
+<div class="chapter-title">챕터 2 실전 응대</div>
+<div class="chapter-summary">
+실제 고객 질문 대응, 비교 설명, 거절 대응
+</div>
+</div>
+</div>
+
+<div class="chapter-card">
+<div class="chapter-thumb">
+<img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40">
+</div>
+<div class="chapter-body">
+<div class="chapter-title">챕터 3 상품 설명</div>
+<div class="chapter-summary">
+요금제, 결합상품, 부가서비스 설명
+</div>
+</div>
+</div>
+
+<div class="chapter-card">
+<div class="chapter-thumb">
+<img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f">
+</div>
+<div class="chapter-body">
+<div class="chapter-title">챕터 4 피드백</div>
+<div class="chapter-summary">
+교육 피드백과 평가 기준 정리
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
