@@ -7,9 +7,7 @@
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -77,6 +75,7 @@
       border-radius: 16px;
       padding: 10px;
       box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      flex-wrap: wrap;
     }
 
     .search-input {
@@ -88,6 +87,7 @@
       padding: 8px 10px;
       background: transparent;
       color: #111827;
+      min-width: 200px;
     }
 
     .search-btn,
@@ -102,13 +102,8 @@
       white-space: nowrap;
     }
 
-    .search-btn {
-      background: #111827;
-    }
-
-    .search-reset-btn {
-      background: #d8006c;
-    }
+    .search-btn { background: #111827; }
+    .search-reset-btn { background: #d8006c; }
 
     .search-msg {
       margin-top: 10px;
@@ -119,13 +114,8 @@
       white-space: normal;
     }
 
-    .view {
-      display: none;
-    }
-
-    .view.active {
-      display: block;
-    }
+    .view { display: none; }
+    .view.active { display: block; }
 
     .chapter-list {
       display: grid;
@@ -186,6 +176,7 @@
       line-height: 1.6;
       margin-bottom: 18px;
       min-height: 66px;
+      white-space: pre-line;
     }
 
     .chapter-meta {
@@ -255,6 +246,7 @@
       color: #6b7280;
       font-size: 14px;
       line-height: 1.6;
+      white-space: pre-line;
     }
 
     .back-btn {
@@ -302,6 +294,7 @@
       font-size: 14px;
       color: #6b7280;
       line-height: 1.7;
+      white-space: pre-line;
     }
 
     .slide-toolbar {
@@ -367,8 +360,8 @@
       color: #374151;
     }
 
-    .slide-title-input,
-    .slide-textarea {
+    .slide-title-box,
+    .slide-content-box {
       width: 100%;
       border: 1px solid #d1d5db;
       border-radius: 14px;
@@ -378,17 +371,19 @@
       outline: none;
     }
 
-    .slide-title-input {
+    .slide-title-box {
       margin-bottom: 16px;
       font-size: 18px;
       font-weight: 700;
+      line-height: 1.5;
+      white-space: pre-line;
     }
 
-    .slide-textarea {
+    .slide-content-box {
       min-height: 320px;
-      resize: vertical;
       font-size: 14px;
-      line-height: 1.7;
+      line-height: 1.8;
+      white-space: pre-line;
     }
 
     .image-box {
@@ -396,12 +391,6 @@
       border: 1px dashed #d1d5db;
       border-radius: 18px;
       padding: 16px;
-    }
-
-    .image-box input[type="file"] {
-      width: 100%;
-      margin-bottom: 12px;
-      font-size: 13px;
     }
 
     .preview {
@@ -451,6 +440,25 @@
       color: #fff;
     }
 
+    .loading-box,
+    .error-box,
+    .empty-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+
+    .loading-box strong,
+    .error-box strong,
+    .empty-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
     @media (max-width: 1100px) {
       .chapter-list,
       .topic-list {
@@ -480,10 +488,6 @@
         width: 100%;
         min-width: 0;
         max-width: none;
-      }
-
-      .search-area {
-        flex-wrap: wrap;
       }
 
       .search-btn,
@@ -520,7 +524,12 @@
       </div>
     </div>
 
-    <div id="mainView" class="view active">
+    <div id="loadingView" class="loading-box">
+      <strong>불러오는 중입니다.</strong>
+      <div>구글시트 데이터를 확인하고 있어요.</div>
+    </div>
+
+    <div id="mainView" class="view">
       <div class="chapter-list" id="chapterList"></div>
     </div>
 
@@ -528,7 +537,7 @@
       <div class="panel">
         <div class="panel-top">
           <div>
-            <h2 id="chapterViewTitle" class="panel-title">챕터 1</h2>
+            <h2 id="chapterViewTitle" class="panel-title">챕터</h2>
             <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
           </div>
           <button class="back-btn" onclick="showMain()">목록으로</button>
@@ -542,13 +551,13 @@
         <div class="panel-top">
           <div>
             <h2 id="topicViewTitle" class="panel-title">교육 주제</h2>
-            <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 작성하고 이미지를 업로드하세요.</p>
+            <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 확인하세요.</p>
           </div>
           <button class="back-btn" onclick="backToChapter()">주제 목록으로</button>
         </div>
 
         <div class="slide-toolbar">
-          <div id="slideCount" class="slide-count">슬라이드 1 / 10</div>
+          <div id="slideCount" class="slide-count">슬라이드 1 / 1</div>
           <div class="slide-nav">
             <button id="prevSlideBtn" onclick="moveSlide(-1)">이전</button>
             <button id="nextSlideBtn" onclick="moveSlide(1)">다음</button>
@@ -562,192 +571,186 @@
   </div>
 
   <script>
-    const appData = [
-      {
-        id: 'chapter1',
-        title: '챕터 1 교육 진행',
-        summary: '교육 오리엔테이션, 기본 화법, 응대 흐름 등 핵심 내용을 정리하는 챕터입니다.',
-        label: '기본 교육',
-        sub: '주제 4개',
-        image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop',
-        topics: [
-          {
-            id: 'c1t1',
-            title: '교육 오리엔테이션',
-            summary: '교육 목적과 전체 흐름을 소개하는 주제입니다.',
-            slides: createSlides('교육 오리엔테이션')
-          },
-          {
-            id: 'c1t2',
-            title: '기본 인사 화법',
-            summary: '첫 인사와 기본 응대 멘트를 정리하는 주제입니다.',
-            slides: createSlides('기본 인사 화법')
-          },
-          {
-            id: 'c1t3',
-            title: '고객 응대 순서',
-            summary: '상담 시작부터 마무리까지 순서를 정리하는 주제입니다.',
-            slides: createSlides('고객 응대 순서')
-          },
-          {
-            id: 'c1t4',
-            title: '교육 마무리',
-            summary: '핵심 요약과 마무리 멘트를 정리하는 주제입니다.',
-            slides: createSlides('교육 마무리')
-          }
-        ]
-      },
-      {
-        id: 'chapter2',
-        title: '챕터 2 실전 응대',
-        summary: '실제 고객 질문 대응, 비교 설명, 거절 대응 등 실전 응대 중심 챕터입니다.',
-        label: '실전 응대',
-        sub: '주제 4개',
-        image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
-        topics: [
-          {
-            id: 'c2t1',
-            title: '고객 질문 대응',
-            summary: '자주 나오는 질문에 대한 답변 구조를 정리합니다.',
-            slides: createSlides('고객 질문 대응')
-          },
-          {
-            id: 'c2t2',
-            title: '비교 설명 화법',
-            summary: '상품 간 차이를 쉽게 설명하는 주제입니다.',
-            slides: createSlides('비교 설명 화법')
-          },
-          {
-            id: 'c2t3',
-            title: '거절 대응 화법',
-            summary: '거절 상황에서 자연스럽게 이어가는 방법을 정리합니다.',
-            slides: createSlides('거절 대응 화법')
-          },
-          {
-            id: 'c2t4',
-            title: '실전 롤플레잉',
-            summary: '상황별 응대 연습을 정리하는 주제입니다.',
-            slides: createSlides('실전 롤플레잉')
-          }
-        ]
-      },
-      {
-        id: 'chapter3',
-        title: '챕터 3 상품 설명',
-        summary: '요금제, 결합상품, 부가서비스 등 상품 설명 중심 챕터입니다.',
-        label: '상품 설명',
-        sub: '주제 4개',
-        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop',
-        topics: [
-          {
-            id: 'c3t1',
-            title: '요금제 설명',
-            summary: '요금제를 쉽게 설명하는 주제입니다.',
-            slides: createSlides('요금제 설명')
-          },
-          {
-            id: 'c3t2',
-            title: '결합상품 설명',
-            summary: '결합 장점을 고객 관점에서 설명하는 주제입니다.',
-            slides: createSlides('결합상품 설명')
-          },
-          {
-            id: 'c3t3',
-            title: '부가서비스 설명',
-            summary: '부가서비스를 자연스럽게 제안하는 주제입니다.',
-            slides: createSlides('부가서비스 설명')
-          },
-          {
-            id: 'c3t4',
-            title: '추천 멘트 정리',
-            summary: '상황별 추천 멘트를 정리하는 주제입니다.',
-            slides: createSlides('추천 멘트 정리')
-          }
-        ]
-      },
-      {
-        id: 'chapter4',
-        title: '챕터 4 피드백/평가',
-        summary: '교육 피드백, 체크리스트, 마무리 평가를 정리하는 챕터입니다.',
-        label: '피드백',
-        sub: '주제 4개',
-        image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1200&auto=format&fit=crop',
-        topics: [
-          {
-            id: 'c4t1',
-            title: '교육 피드백',
-            summary: '교육 후 개선점을 정리하는 주제입니다.',
-            slides: createSlides('교육 피드백')
-          },
-          {
-            id: 'c4t2',
-            title: '현장 체크리스트',
-            summary: '현장 점검 항목을 정리하는 주제입니다.',
-            slides: createSlides('현장 체크리스트')
-          },
-          {
-            id: 'c4t3',
-            title: '평가 기준',
-            summary: '평가 요소와 기준을 정리하는 주제입니다.',
-            slides: createSlides('평가 기준')
-          },
-          {
-            id: 'c4t4',
-            title: '최종 마무리',
-            summary: '교육 종료 시 마무리 내용을 정리하는 주제입니다.',
-            slides: createSlides('최종 마무리')
-          }
-        ]
-      }
-    ];
+    const SOP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROVBZlJbe3DKK0q9NT8aYjcob7lhscT_O88TrdqhfUMWx1vIWX0vSiEH4M0Iq1iebOCe6Z_W20_cWM/pub?gid=1357931266&single=true&output=csv";
 
-    function createSlides(topicTitle) {
-      const slides = [];
-      for (let i = 1; i <= 10; i++) {
-        slides.push({
-          title: topicTitle + ' - 슬라이드 ' + i,
-          content: '',
-          image: ''
-        });
-      }
-      return slides;
-    }
-
-    const mainView = document.getElementById('mainView');
-    const chapterView = document.getElementById('chapterView');
-    const topicView = document.getElementById('topicView');
-
-    const chapterList = document.getElementById('chapterList');
-    const topicList = document.getElementById('topicList');
-    const chapterViewTitle = document.getElementById('chapterViewTitle');
-    const chapterViewDesc = document.getElementById('chapterViewDesc');
-    const topicViewTitle = document.getElementById('topicViewTitle');
-    const topicViewDesc = document.getElementById('topicViewDesc');
-    const slidePages = document.getElementById('slidePages');
-    const slideDots = document.getElementById('slideDots');
-    const slideCount = document.getElementById('slideCount');
-    const prevSlideBtn = document.getElementById('prevSlideBtn');
-    const nextSlideBtn = document.getElementById('nextSlideBtn');
-    const searchMsg = document.getElementById('searchMsg');
-    const globalSearchInput = document.getElementById('globalSearchInput');
-
+    let appData = [];
     let currentChapterIndex = null;
     let currentTopicIndex = null;
     let currentSlideIndex = 0;
 
     let searchResults = [];
     let currentSearchIndex = -1;
-    let lastKeyword = '';
+    let lastKeyword = "";
+
+    const loadingView = document.getElementById("loadingView");
+    const mainView = document.getElementById("mainView");
+    const chapterView = document.getElementById("chapterView");
+    const topicView = document.getElementById("topicView");
+
+    const chapterList = document.getElementById("chapterList");
+    const topicList = document.getElementById("topicList");
+    const chapterViewTitle = document.getElementById("chapterViewTitle");
+    const chapterViewDesc = document.getElementById("chapterViewDesc");
+    const topicViewTitle = document.getElementById("topicViewTitle");
+    const topicViewDesc = document.getElementById("topicViewDesc");
+    const slidePages = document.getElementById("slidePages");
+    const slideDots = document.getElementById("slideDots");
+    const slideCount = document.getElementById("slideCount");
+    const prevSlideBtn = document.getElementById("prevSlideBtn");
+    const nextSlideBtn = document.getElementById("nextSlideBtn");
+    const searchMsg = document.getElementById("searchMsg");
+    const globalSearchInput = document.getElementById("globalSearchInput");
+
+    function normalizeText(value) {
+      return String(value ?? "")
+        .replace(/\uFEFF/g, "")
+        .replace(/\u200B/g, "")
+        .replace(/\u00A0/g, " ")
+        .trim();
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          row.push(current);
+          current = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") i++;
+          row.push(current);
+          if (row.some(cell => cell !== "")) rows.push(row);
+          row = [];
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      if (current !== "" || row.length > 0) {
+        row.push(current);
+        if (row.some(cell => cell !== "")) rows.push(row);
+      }
+
+      if (!rows.length) return [];
+
+      const headers = rows[0].map(h => normalizeText(h));
+      return rows.slice(1).map(cols => {
+        const obj = {};
+        headers.forEach((header, idx) => {
+          obj[header] = normalizeText(cols[idx] || "");
+        });
+        return obj;
+      });
+    }
+
+    function safeNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function buildAppData(rows) {
+      const chapterMap = new Map();
+
+      rows.forEach((row, idx) => {
+        const chapterId = normalizeText(row.chapterId || row.chapterid || row["chapter_id"]) || `chapter-${idx}`;
+        const chapterTitle = normalizeText(row.chapterTitle || row.chaptertitle || row["chapter_title"]) || "챕터 제목 없음";
+        const chapterSummary = normalizeText(row.chapterSummary || row.chaptersummary || row["chapter_summary"]);
+        const chapterLabel = normalizeText(row.chapterLabel || row.chapterlabel || row["chapter_label"]) || "SOP";
+        const chapterImage = normalizeText(row.chapterImage || row.chapterimage || row["chapter_image"]);
+        const topicId = normalizeText(row.topicId || row.topicid || row["topic_id"]) || `topic-${idx}`;
+        const topicTitle = normalizeText(row.topicTitle || row.topictitle || row["topic_title"]) || "주제 제목 없음";
+        const topicSummary = normalizeText(row.topicSummary || row.topicsummary || row["topic_summary"]);
+        const slideNo = safeNumber(row.slideNo || row.slideno || row["slide_no"], 1);
+        const slideTitle = normalizeText(row.slideTitle || row.slidetitle || row["slide_title"]) || `${topicTitle} - 슬라이드 ${slideNo}`;
+        const slideContent = normalizeText(row.slideContent || row.slidecontent || row["slide_content"]);
+        const imageUrl = normalizeText(row.imageUrl || row.imageurl || row["image_url"]);
+
+        if (!chapterMap.has(chapterId)) {
+          chapterMap.set(chapterId, {
+            id: chapterId,
+            title: chapterTitle,
+            summary: chapterSummary,
+            label: chapterLabel,
+            sub: "",
+            image: chapterImage,
+            topics: []
+          });
+        }
+
+        const chapter = chapterMap.get(chapterId);
+        let topic = chapter.topics.find(t => t.id === topicId);
+
+        if (!topic) {
+          topic = {
+            id: topicId,
+            title: topicTitle,
+            summary: topicSummary,
+            slides: []
+          };
+          chapter.topics.push(topic);
+        }
+
+        topic.slides.push({
+          slideNo,
+          title: slideTitle,
+          content: slideContent,
+          image: imageUrl
+        });
+      });
+
+      const chapters = Array.from(chapterMap.values());
+
+      chapters.forEach(chapter => {
+        chapter.topics.forEach(topic => {
+          topic.slides.sort((a, b) => a.slideNo - b.slideNo);
+        });
+        chapter.sub = `주제 ${chapter.topics.length}개`;
+      });
+
+      return chapters;
+    }
+
+    async function fetchSopSheetData() {
+      const url = SOP_CSV_URL + (SOP_CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("SOP 구글시트 데이터를 불러오지 못했습니다.");
+      const csvText = await res.text();
+      return parseCSV(csvText);
+    }
 
     function renderChapters() {
+      if (!appData.length) {
+        chapterList.innerHTML = `
+          <div class="empty-box" style="grid-column: 1 / -1;">
+            <strong>등록된 SOP 데이터가 없습니다.</strong>
+            <div>구글시트 내용을 확인해 주세요.</div>
+          </div>
+        `;
+        return;
+      }
+
       chapterList.innerHTML = appData.map((chapter, index) => `
         <div class="chapter-card" onclick="openChapter(${index})">
           <div class="chapter-thumb">
-            <img src="${chapter.image}" alt="${escapeHtml(chapter.title)}">
+            ${chapter.image ? `<img src="${escapeAttr(chapter.image)}" alt="${escapeHtml(chapter.title)}">` : ""}
           </div>
           <div class="chapter-body">
             <h3 class="chapter-title">${escapeHtml(chapter.title)}</h3>
-            <div class="chapter-summary">${escapeHtml(chapter.summary)}</div>
+            <div class="chapter-summary">${escapeHtml(chapter.summary || "챕터 설명이 없습니다.")}</div>
             <div class="chapter-meta">
               <div class="chapter-info">
                 <span class="chapter-label">${escapeHtml(chapter.label)}</span>
@@ -757,7 +760,7 @@
             </div>
           </div>
         </div>
-      `).join('');
+      `).join("");
     }
 
     function openChapter(index) {
@@ -765,16 +768,16 @@
       const chapter = appData[index];
 
       chapterViewTitle.textContent = chapter.title;
-      chapterViewDesc.textContent = '챕터 안의 교육 주제를 선택하세요.';
+      chapterViewDesc.textContent = chapter.summary || "챕터 안의 교육 주제를 선택하세요.";
 
       topicList.innerHTML = chapter.topics.map((topic, topicIndex) => `
         <div class="topic-card" onclick="openTopic(${topicIndex})">
           <h3>${escapeHtml(topic.title)}</h3>
-          <p>${escapeHtml(topic.summary)}</p>
+          <p>${escapeHtml(topic.summary || "주제 설명이 없습니다.")}</p>
         </div>
-      `).join('');
+      `).join("");
 
-      showView('chapter');
+      showView("chapter");
     }
 
     function openTopic(topicIndex) {
@@ -785,50 +788,39 @@
       const topic = chapter.topics[topicIndex];
 
       topicViewTitle.textContent = topic.title;
-      topicViewDesc.textContent = '슬라이드 내용을 작성하고 이미지를 업로드하세요.';
+      topicViewDesc.textContent = topic.summary || "슬라이드 내용을 확인하세요.";
 
       renderSlides();
-      showView('topic');
+      showView("topic");
     }
 
     function renderSlides() {
       const topic = appData[currentChapterIndex].topics[currentTopicIndex];
 
       slidePages.innerHTML = topic.slides.map((slide, idx) => `
-        <div class="slide-page ${idx === currentSlideIndex ? 'active' : ''}">
+        <div class="slide-page ${idx === currentSlideIndex ? "active" : ""}">
           <div class="slide-layout">
             <div>
               <label class="field-label">슬라이드 제목</label>
-              <input
-                class="slide-title-input"
-                type="text"
-                value="${escapeAttr(slide.title)}"
-                oninput="updateSlideTitle(${idx}, this.value)"
-                placeholder="슬라이드 제목을 입력하세요"
-              />
+              <div class="slide-title-box">${escapeHtml(slide.title)}</div>
 
               <label class="field-label">슬라이드 내용</label>
-              <textarea
-                class="slide-textarea"
-                oninput="updateSlideContent(${idx}, this.value)"
-                placeholder="교육 내용을 입력하세요"
-              >${escapeHtml(slide.content)}</textarea>
+              <div class="slide-content-box">${escapeHtml(slide.content || "내용이 없습니다.")}</div>
             </div>
 
             <div class="image-box">
-              <label class="field-label">이미지 업로드</label>
-              <input type="file" accept="image/*" onchange="previewImage(event, ${idx})" />
-              <div class="preview" id="preview-${idx}">
-                ${slide.image ? `<img src="${slide.image}" alt="미리보기">` : '이미지를 업로드하세요'}
+              <label class="field-label">이미지</label>
+              <div class="preview">
+                ${slide.image ? `<img src="${escapeAttr(slide.image)}" alt="${escapeHtml(slide.title)}">` : "이미지가 없습니다"}
               </div>
             </div>
           </div>
         </div>
-      `).join('');
+      `).join("");
 
       slideDots.innerHTML = topic.slides.map((_, idx) => `
-        <button class="${idx === currentSlideIndex ? 'active' : ''}" onclick="goSlide(${idx})">${idx + 1}</button>
-      `).join('');
+        <button class="${idx === currentSlideIndex ? "active" : ""}" onclick="goSlide(${idx})">${idx + 1}</button>
+      `).join("");
 
       updateSlideToolbar();
     }
@@ -853,53 +845,27 @@
       renderSlides();
     }
 
-    function updateSlideTitle(index, value) {
-      appData[currentChapterIndex].topics[currentTopicIndex].slides[index].title = value;
-    }
-
-    function updateSlideContent(index, value) {
-      appData[currentChapterIndex].topics[currentTopicIndex].slides[index].content = value;
-    }
-
-    function previewImage(event, slideIndex) {
-      const file = event.target.files[0];
-      const previewEl = document.getElementById(`preview-${slideIndex}`);
-
-      if (!file) {
-        appData[currentChapterIndex].topics[currentTopicIndex].slides[slideIndex].image = '';
-        previewEl.innerHTML = '이미지를 업로드하세요';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const imageData = e.target.result;
-        appData[currentChapterIndex].topics[currentTopicIndex].slides[slideIndex].image = imageData;
-        previewEl.innerHTML = `<img src="${imageData}" alt="미리보기">`;
-      };
-      reader.readAsDataURL(file);
-    }
-
     function showMain() {
-      showView('main');
+      showView("main");
     }
 
     function backToChapter() {
-      showView('chapter');
+      showView("chapter");
     }
 
     function showView(name) {
-      mainView.classList.remove('active');
-      chapterView.classList.remove('active');
-      topicView.classList.remove('active');
+      loadingView.style.display = "none";
+      mainView.classList.remove("active");
+      chapterView.classList.remove("active");
+      topicView.classList.remove("active");
 
-      if (name === 'main') mainView.classList.add('active');
-      if (name === 'chapter') chapterView.classList.add('active');
-      if (name === 'topic') topicView.classList.add('active');
+      if (name === "main") mainView.classList.add("active");
+      if (name === "chapter") chapterView.classList.add("active");
+      if (name === "topic") topicView.classList.add("active");
     }
 
     function handleSearchEnter(event) {
-      if (event.key === 'Enter') {
+      if (event.key === "Enter") {
         searchKeyword();
       }
     }
@@ -919,10 +885,10 @@
     }
 
     function resetAllSearch() {
-      globalSearchInput.value = '';
+      globalSearchInput.value = "";
       searchResults = [];
       currentSearchIndex = -1;
-      lastKeyword = '';
+      lastKeyword = "";
       clearSearchMsg();
       showMain();
     }
@@ -934,11 +900,11 @@
         const chapter = appData[c];
 
         if (
-          (chapter.title || '').toLowerCase().includes(keyword) ||
-          (chapter.summary || '').toLowerCase().includes(keyword)
+          (chapter.title || "").toLowerCase().includes(keyword) ||
+          (chapter.summary || "").toLowerCase().includes(keyword)
         ) {
           results.push({
-            type: 'chapter',
+            type: "chapter",
             chapterIndex: c
           });
         }
@@ -947,11 +913,11 @@
           const topic = chapter.topics[t];
 
           if (
-            (topic.title || '').toLowerCase().includes(keyword) ||
-            (topic.summary || '').toLowerCase().includes(keyword)
+            (topic.title || "").toLowerCase().includes(keyword) ||
+            (topic.summary || "").toLowerCase().includes(keyword)
           ) {
             results.push({
-              type: 'topic',
+              type: "topic",
               chapterIndex: c,
               topicIndex: t
             });
@@ -961,11 +927,11 @@
             const slide = topic.slides[s];
 
             if (
-              (slide.title || '').toLowerCase().includes(keyword) ||
-              (slide.content || '').toLowerCase().includes(keyword)
+              (slide.title || "").toLowerCase().includes(keyword) ||
+              (slide.content || "").toLowerCase().includes(keyword)
             ) {
               results.push({
-                type: 'slide',
+                type: "slide",
                 chapterIndex: c,
                 topicIndex: t,
                 slideIndex: s
@@ -979,11 +945,11 @@
     }
 
     function getChapterName(index) {
-      return appData[index]?.title || '';
+      return appData[index]?.title || "";
     }
 
     function getTopicName(chapterIndex, topicIndex) {
-      return appData[chapterIndex]?.topics?.[topicIndex]?.title || '';
+      return appData[chapterIndex]?.topics?.[topicIndex]?.title || "";
     }
 
     function searchKeyword() {
@@ -991,10 +957,10 @@
       const keyword = rawKeyword.toLowerCase();
 
       if (!keyword) {
-        setSearchMsg('검색어를 입력해주세요.');
+        setSearchMsg("검색어를 입력해주세요.");
         searchResults = [];
         currentSearchIndex = -1;
-        lastKeyword = '';
+        lastKeyword = "";
         return;
       }
 
@@ -1018,33 +984,27 @@
       const chapterName = getChapterName(result.chapterIndex);
       const topicName = result.topicIndex !== undefined
         ? getTopicName(result.chapterIndex, result.topicIndex)
-        : '';
+        : "";
 
-      if (result.type === 'chapter') {
+      if (result.type === "chapter") {
         openChapter(result.chapterIndex);
-        setSearchMsg(
-          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)}`
-        );
+        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)}`);
         return;
       }
 
-      if (result.type === 'topic') {
+      if (result.type === "topic") {
         openChapter(result.chapterIndex);
         openTopic(result.topicIndex);
-        setSearchMsg(
-          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)}`
-        );
+        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)}`);
         return;
       }
 
-      if (result.type === 'slide') {
+      if (result.type === "slide") {
         openChapter(result.chapterIndex);
         openTopic(result.topicIndex);
         currentSlideIndex = result.slideIndex;
         renderSlides();
-        setSearchMsg(
-          `"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)} > ${result.slideIndex + 1}번 슬라이드`
-        );
+        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)} > ${result.slideIndex + 1}번 슬라이드`);
       }
     }
 
@@ -1053,27 +1013,45 @@
     }
 
     function clearSearchMsg() {
-      searchMsg.innerHTML = '';
+      searchMsg.innerHTML = "";
     }
 
     function escapeHtml(value) {
       return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function escapeAttr(value) {
       return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    renderChapters();
+    async function initSopPage() {
+      try {
+        const rows = await fetchSopSheetData();
+        appData = buildAppData(rows);
+
+        loadingView.style.display = "none";
+        renderChapters();
+        showMain();
+      } catch (error) {
+        console.error(error);
+        loadingView.className = "error-box";
+        loadingView.innerHTML = `
+          <strong>로드 실패</strong>
+          <div>${escapeHtml(error.message || "알 수 없는 오류가 발생했습니다.")}</div>
+        `;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initSopPage);
   </script>
 </body>
 </html>
