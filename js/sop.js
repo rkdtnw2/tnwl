@@ -73,6 +73,33 @@ function getSopSearchableText(row) {
     .join(" ");
 }
 
+function buildSopCardHtml(item, groupColor, indexInGroup) {
+  const situationNumber = Number(item.order || indexInGroup + 1);
+  const title = escapeHtml(item.title || "제목 없음");
+  const speech = escapeHtml(item.speech || "-");
+  const rebuttal = escapeHtml(item.rebuttal || "-");
+
+  return `
+    <div class="card" style="--card-color:${groupColor}; --card-soft:${hexToRgba(groupColor, 0.10)}; --card-strong:${groupColor};">
+      <div class="card-color-line"></div>
+
+      <div class="situation-tag">
+        상황 ${situationNumber}: ${title}
+      </div>
+
+      <div class="speech-box">
+        <div class="box-title">🗣️ 세일즈 화법</div>
+        <p class="box-text">${speech}</p>
+      </div>
+
+      <div class="rebuttal-box">
+        <div class="box-title">🛡️ 반론 극복</div>
+        <p class="box-text">${rebuttal}</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderSOP(data) {
   const categoryGrid = document.getElementById("sop-category-grid");
   const contentArea = document.getElementById("sop-content-area");
@@ -84,7 +111,7 @@ function renderSOP(data) {
   categoryGrid.innerHTML = "";
   contentArea.innerHTML = "";
 
-  if (!data.length) {
+  if (!Array.isArray(data) || !data.length) {
     countBadge.textContent = "0개 카테고리";
     if (searchStatus) searchStatus.textContent = "";
     contentArea.innerHTML = `<div class="empty-state">등록된 SOP 데이터가 없습니다.</div>`;
@@ -160,6 +187,7 @@ function renderSOP(data) {
     } else {
       btn.style.background = `linear-gradient(180deg, #fff, ${softColor})`;
       btn.style.color = "#1e293b";
+      btn.style.boxShadow = "0 8px 20px rgba(15, 23, 42, 0.05)";
     }
 
     btn.onclick = () => {
@@ -167,6 +195,7 @@ function renderSOP(data) {
         b.classList.remove("active");
         const currentKey = categoryNames[idx];
         const currentGroup = groups[currentKey];
+
         b.style.background = `linear-gradient(180deg, #fff, ${hexToRgba(currentGroup.color, 0.10)})`;
         b.style.color = "#1e293b";
         b.style.boxShadow = "0 8px 20px rgba(15, 23, 42, 0.05)";
@@ -178,7 +207,8 @@ function renderSOP(data) {
       btn.style.boxShadow = `0 10px 24px ${hexToRgba(group.color, 0.26)}`;
 
       document.querySelectorAll("#sop-content-area .sop-group").forEach(g => g.classList.remove("active"));
-      document.getElementById("sop-group-" + index).classList.add("active");
+      const targetGroup = document.getElementById("sop-group-" + index);
+      if (targetGroup) targetGroup.classList.add("active");
     };
 
     categoryGrid.appendChild(btn);
@@ -187,22 +217,11 @@ function renderSOP(data) {
     groupDiv.id = "sop-group-" + index;
     groupDiv.className = "sop-group" + (index === 0 ? " active" : "");
 
-    const sortedItems = group.items.sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+    const sortedItems = [...group.items].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 
-    groupDiv.innerHTML = sortedItems.map((item, idx2) => `
-      <div class="card" style="--card-color:${group.color}; --card-soft:${hexToRgba(group.color, 0.10)}; --card-strong:${group.color};">
-        <div class="card-color-line"></div>
-        <div class="situation-tag">상황 ${Number(item.order || idx2 + 1)}: ${escapeHtml(item.title)}</div>
-        <div class="speech-box">
-          <div class="box-title">🗣️ 세일즈 화법</div>
-          <p class="box-text">${escapeHtml(item.speech || "-")}</p>
-        </div>
-        <div class="rebuttal-box">
-          <div class="box-title">🛡️ 반론 극복</div>
-          <p class="box-text">${escapeHtml(item.rebuttal || "-")}</p>
-        </div>
-      </div>
-    `).join("");
+    groupDiv.innerHTML = sortedItems
+      .map((item, idx2) => buildSopCardHtml(item, group.color, idx2))
+      .join("");
 
     contentArea.appendChild(groupDiv);
   });
