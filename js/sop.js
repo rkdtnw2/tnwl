@@ -5,10 +5,487 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SOP 매뉴얼</title>
   <style>
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    @import url('https://cconst SOP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROVBZlJbe3DKK0q9NT8aYjcob7lhscT_O88TrdqhfUMWx1vIWX0vSiEH4M0Iq1iebOCe6Z_W20_cWM/pub?gid=1357931266&single=true&output=csv";
 
-    * { box-sizing: border-box; }
+let appData = [];
+let currentChapterIndex = null;
+let currentTopicIndex = null;
+let currentSlideIndex = 0;
 
+let searchResults = [];
+let currentSearchIndex = -1;
+let lastKeyword = "";
+
+const loadingView = document.getElementById("loadingView");
+const mainView = document.getElementById("mainView");
+const chapterView = document.getElementById("chapterView");
+const topicView = document.getElementById("topicView");
+
+const chapterList = document.getElementById("chapterList");
+const topicList = document.getElementById("topicList");
+const chapterViewTitle = document.getElementById("chapterViewTitle");
+const chapterViewDesc = document.getElementById("chapterViewDesc");
+const topicViewTitle = document.getElementById("topicViewTitle");
+const topicViewDesc = document.getElementById("topicViewDesc");
+const slidePages = document.getElementById("slidePages");
+const slideDots = document.getElementById("slideDots");
+const slideCount = document.getElementById("slideCount");
+const prevSlideBtn = document.getElementById("prevSlideBtn");
+const nextSlideBtn = document.getElementById("nextSlideBtn");
+const searchMsg = document.getElementById("searchMsg");
+const globalSearchInput = document.getElementById("globalSearchInput");
+
+function normalizeText(value) {
+  return String(value ?? "")
+    .replace(/\uFEFF/g, "")
+    .replace(/\u200B/g, "")
+    .replace(/\u00A0/g, " ")
+    .trim();
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      row.push(current);
+      current = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i++;
+      row.push(current);
+      if (row.some(cell => cell !== "")) rows.push(row);
+      row = [];
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  if (current !== "" || row.length > 0) {
+    row.push(current);
+    if (row.some(cell => cell !== "")) rows.push(row);
+  }
+
+  if (!rows.length) return [];
+
+  const headers = rows[0].map(h => normalizeText(h));
+  return rows.slice(1).map(cols => {
+    const obj = {};
+    headers.forEach((header, idx) => {
+      obj[header] = normalizeText(cols[idx] || "");
+    });
+    return obj;
+  });
+}
+
+function safeNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function buildAppData(rows) {
+  const chapterMap = new Map();
+
+  rows.forEach((row, idx) => {
+    const chapterId = normalizeText(row.chapterId || row.chapterid || row["chapter_id"]) || `chapter-${idx}`;
+    const chapterTitle = normalizeText(row.chapterTitle || row.chaptertitle || row["chapter_title"]) || "챕터 제목 없음";
+    const chapterSummary = normalizeText(row.chapterSummary || row.chaptersummary || row["chapter_summary"]);
+    const chapterLabel = normalizeText(row.chapterLabel || row.chapterlabel || row["chapter_label"]) || "SOP";
+    const chapterImage = normalizeText(row.chapterImage || row.chapterimage || row["chapter_image"]);
+    const topicId = normalizeText(row.topicId || row.topicid || row["topic_id"]) || `topic-${idx}`;
+    const topicTitle = normalizeText(row.topicTitle || row.topictitle || row["topic_title"]) || "주제 제목 없음";
+    const topicSummary = normalizeText(row.topicSummary || row.topicsummary || row["topic_summary"]);
+    const slideNo = safeNumber(row.slideNo || row.slideno || row["slide_no"], 1);
+    const slideTitle = normalizeText(row.slideTitle || row.slidetitle || row["slide_title"]) || `${topicTitle} - 슬라이드 ${slideNo}`;
+    const slideContent = normalizeText(row.slideContent || row.slidecontent || row["slide_content"]);
+    const imageUrl = normalizeText(row.imageUrl || row.imageurl || row["image_url"]);
+
+    if (!chapterMap.has(chapterId)) {
+      chapterMap.set(chapterId, {
+        id: chapterId,
+        title: chapterTitle,
+        summary: chapterSummary,
+        label: chapterLabel,
+        sub: "",
+        image: chapterImage,
+        topics: []
+      });
+    }
+
+    const chapter = chapterMap.get(chapterId);
+    let topic = chapter.topics.find(t => t.id === topicId);
+
+    if (!topic) {
+      topic = {
+        id: topicId,
+        title: topicTitle,
+        summary: topicSummary,
+        slides: []
+      };
+      chapter.topics.push(topic);
+    }
+
+    topic.slides.push({
+      slideNo,
+      title: slideTitle,
+      content: slideContent,
+      image: imageUrl
+    });
+  });
+
+  const chapters = Array.from(chapterMap.values());
+
+  chapters.forEach(chapter => {
+    chapter.topics.forEach(topic => {
+      topic.slides.sort((a, b) => a.slideNo - b.slideNo);
+    });
+    chapter.sub = `주제 ${chapter.topics.length}개`;
+  });
+
+  return chapters;
+}
+
+async function fetchSopSheetData() {
+  const url = SOP_CSV_URL + (SOP_CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("SOP 구글시트 데이터를 불러오지 못했습니다.");
+  const csvText = await res.text();
+  return parseCSV(csvText);
+}
+
+function renderChapters() {
+  if (!appData.length) {
+    chapterList.innerHTML = `
+      <div class="empty-box" style="grid-column: 1 / -1;">
+        <strong>등록된 SOP 데이터가 없습니다.</strong>
+        <div>구글시트 내용을 확인해 주세요.</div>
+      </div>
+    `;
+    return;
+  }
+
+  chapterList.innerHTML = appData.map((chapter, index) => `
+    <div class="chapter-card" onclick="openChapter(${index})">
+      <div class="chapter-thumb">
+        ${chapter.image ? `<img src="${escapeAttr(chapter.image)}" alt="${escapeHtml(chapter.title)}">` : ""}
+      </div>
+      <div class="chapter-body">
+        <h3 class="chapter-title">${escapeHtml(chapter.title)}</h3>
+        <div class="chapter-summary">${escapeHtml(chapter.summary || "챕터 설명이 없습니다.")}</div>
+        <div class="chapter-meta">
+          <div class="chapter-info">
+            <span class="chapter-label">${escapeHtml(chapter.label)}</span>
+            <span class="chapter-sub">${escapeHtml(chapter.sub)}</span>
+          </div>
+          <button class="chapter-btn" type="button">들어가기</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function openChapter(index) {
+  currentChapterIndex = index;
+  const chapter = appData[index];
+
+  chapterViewTitle.textContent = chapter.title;
+  chapterViewDesc.textContent = chapter.summary || "챕터 안의 교육 주제를 선택하세요.";
+
+  topicList.innerHTML = chapter.topics.map((topic, topicIndex) => `
+    <div class="topic-card" onclick="openTopic(${topicIndex})">
+      <h3>${escapeHtml(topic.title)}</h3>
+      <p>${escapeHtml(topic.summary || "주제 설명이 없습니다.")}</p>
+    </div>
+  `).join("");
+
+  showView("chapter");
+}
+
+function openTopic(topicIndex) {
+  currentTopicIndex = topicIndex;
+  currentSlideIndex = 0;
+
+  const chapter = appData[currentChapterIndex];
+  const topic = chapter.topics[topicIndex];
+
+  topicViewTitle.textContent = topic.title;
+  topicViewDesc.textContent = topic.summary || "슬라이드 내용을 확인하세요.";
+
+  renderSlides();
+  showView("topic");
+}
+
+function renderSlides() {
+  const topic = appData[currentChapterIndex].topics[currentTopicIndex];
+
+  slidePages.innerHTML = topic.slides.map((slide, idx) => `
+    <div class="slide-page ${idx === currentSlideIndex ? "active" : ""}">
+      <div class="slide-layout">
+        <div>
+          <label class="field-label">슬라이드 제목</label>
+          <div class="slide-title-box">${escapeHtml(slide.title)}</div>
+
+          <label class="field-label">슬라이드 내용</label>
+          <div class="slide-content-box">${escapeHtml(slide.content || "내용이 없습니다.")}</div>
+        </div>
+
+        <div class="image-box">
+          <label class="field-label">이미지</label>
+          <div class="preview">
+            ${slide.image ? `<img src="${escapeAttr(slide.image)}" alt="${escapeHtml(slide.title)}">` : "이미지가 없습니다"}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  slideDots.innerHTML = topic.slides.map((_, idx) => `
+    <button class="${idx === currentSlideIndex ? "active" : ""}" onclick="goSlide(${idx})">${idx + 1}</button>
+  `).join("");
+
+  updateSlideToolbar();
+}
+
+function updateSlideToolbar() {
+  const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
+  slideCount.textContent = `슬라이드 ${currentSlideIndex + 1} / ${total}`;
+  prevSlideBtn.disabled = currentSlideIndex === 0;
+  nextSlideBtn.disabled = currentSlideIndex === total - 1;
+}
+
+function moveSlide(direction) {
+  const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
+  const next = currentSlideIndex + direction;
+  if (next < 0 || next >= total) return;
+  currentSlideIndex = next;
+  renderSlides();
+}
+
+function goSlide(index) {
+  currentSlideIndex = index;
+  renderSlides();
+}
+
+function showMain() {
+  showView("main");
+}
+
+function backToChapter() {
+  showView("chapter");
+}
+
+function showView(name) {
+  loadingView.style.display = "none";
+  mainView.classList.remove("active");
+  chapterView.classList.remove("active");
+  topicView.classList.remove("active");
+
+  if (name === "main") mainView.classList.add("active");
+  if (name === "chapter") chapterView.classList.add("active");
+  if (name === "topic") topicView.classList.add("active");
+}
+
+function handleSearchEnter(event) {
+  if (event.key === "Enter") {
+    searchKeyword();
+  }
+}
+
+function resetSearchState() {
+  const currentKeyword = globalSearchInput.value.trim().toLowerCase();
+
+  if (currentKeyword !== lastKeyword) {
+    searchResults = [];
+    currentSearchIndex = -1;
+    lastKeyword = currentKeyword;
+  }
+
+  if (!currentKeyword) {
+    clearSearchMsg();
+  }
+}
+
+function resetAllSearch() {
+  globalSearchInput.value = "";
+  searchResults = [];
+  currentSearchIndex = -1;
+  lastKeyword = "";
+  clearSearchMsg();
+  showMain();
+}
+
+function collectSearchResults(keyword) {
+  const results = [];
+
+  for (let c = 0; c < appData.length; c++) {
+    const chapter = appData[c];
+
+    if (
+      (chapter.title || "").toLowerCase().includes(keyword) ||
+      (chapter.summary || "").toLowerCase().includes(keyword)
+    ) {
+      results.push({
+        type: "chapter",
+        chapterIndex: c
+      });
+    }
+
+    for (let t = 0; t < chapter.topics.length; t++) {
+      const topic = chapter.topics[t];
+
+      if (
+        (topic.title || "").toLowerCase().includes(keyword) ||
+        (topic.summary || "").toLowerCase().includes(keyword)
+      ) {
+        results.push({
+          type: "topic",
+          chapterIndex: c,
+          topicIndex: t
+        });
+      }
+
+      for (let s = 0; s < topic.slides.length; s++) {
+        const slide = topic.slides[s];
+
+        if (
+          (slide.title || "").toLowerCase().includes(keyword) ||
+          (slide.content || "").toLowerCase().includes(keyword)
+        ) {
+          results.push({
+            type: "slide",
+            chapterIndex: c,
+            topicIndex: t,
+            slideIndex: s
+          });
+        }
+      }
+    }
+  }
+
+  return results;
+}
+
+function getChapterName(index) {
+  return appData[index]?.title || "";
+}
+
+function getTopicName(chapterIndex, topicIndex) {
+  return appData[chapterIndex]?.topics?.[topicIndex]?.title || "";
+}
+
+function searchKeyword() {
+  const rawKeyword = globalSearchInput.value.trim();
+  const keyword = rawKeyword.toLowerCase();
+
+  if (!keyword) {
+    setSearchMsg("검색어를 입력해주세요.");
+    searchResults = [];
+    currentSearchIndex = -1;
+    lastKeyword = "";
+    return;
+  }
+
+  if (lastKeyword !== keyword || searchResults.length === 0) {
+    searchResults = collectSearchResults(keyword);
+    currentSearchIndex = -1;
+    lastKeyword = keyword;
+  }
+
+  if (!searchResults.length) {
+    setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과가 없습니다.`);
+    return;
+  }
+
+  currentSearchIndex++;
+  if (currentSearchIndex >= searchResults.length) {
+    currentSearchIndex = 0;
+  }
+
+  const result = searchResults[currentSearchIndex];
+  const chapterName = getChapterName(result.chapterIndex);
+  const topicName = result.topicIndex !== undefined
+    ? getTopicName(result.chapterIndex, result.topicIndex)
+    : "";
+
+  if (result.type === "chapter") {
+    openChapter(result.chapterIndex);
+    setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)}`);
+    return;
+  }
+
+  if (result.type === "topic") {
+    openChapter(result.chapterIndex);
+    openTopic(result.topicIndex);
+    setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)}`);
+    return;
+  }
+
+  if (result.type === "slide") {
+    openChapter(result.chapterIndex);
+    openTopic(result.topicIndex);
+    currentSlideIndex = result.slideIndex;
+    renderSlides();
+    setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)} > ${result.slideIndex + 1}번 슬라이드`);
+  }
+}
+
+function setSearchMsg(message) {
+  searchMsg.innerHTML = message;
+}
+
+function clearSearchMsg() {
+  searchMsg.innerHTML = "";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeAttr(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+async function initSopPage() {
+  try {
+    const rows = await fetchSopSheetData();
+    appData = buildAppData(rows);
+
+    loadingView.style.display = "none";
+    renderChapters();
+    showMain();
+  } catch (error) {
+    console.error(error);
+    loadingView.className = "error-box";
+    loadingView.innerHTML = `
+      <strong>로드 실패</strong>
+      <div>${escapeHtml(error.message || "알 수 없는 오류가 발생했습니다.")}</div>
+    `;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initSopPage);
     body {
       margin: 0;
       font-family: 'Pretendard', sans-serif;
