@@ -1,28 +1,21 @@
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 function normalizeEduText(value) {
   return String(value ?? "").trim().toLowerCase();
 }
 
 function getEduCategories() {
-  const categories = [...new Set((eduData || []).map(item => item.category).filter(Boolean))];
-  return categories;
+  return [...new Set((eduData || []).map(item => item.category).filter(Boolean))];
+}
+
+function getEduKeyword() {
+  const input = document.getElementById("edu-search-input");
+  return normalizeEduText(input ? input.value : "");
 }
 
 function getEduFilteredData() {
-  const keyword = normalizeEduText(document.getElementById("edu-search-input")?.value || "");
+  const keyword = getEduKeyword();
 
   return (eduData || []).filter(item => {
-    const matchCategory =
-      currentEduCategory === "all" || item.category === currentEduCategory;
-
+    const matchCategory = currentEduCategory === "all" || item.category === currentEduCategory;
     if (!matchCategory) return false;
     if (!keyword) return true;
 
@@ -60,12 +53,8 @@ function updateEduSearchStatus(data) {
   }
 
   const parts = [];
-  if (currentEduCategory !== "all") {
-    parts.push(`카테고리: ${currentEduCategory}`);
-  }
-  if (keyword) {
-    parts.push(`검색어: "${keyword}"`);
-  }
+  if (currentEduCategory !== "all") parts.push(`카테고리: ${currentEduCategory}`);
+  if (keyword) parts.push(`검색어: "${keyword}"`);
 
   status.textContent = `${parts.join(" · ")} · ${data.length}건`;
 }
@@ -88,7 +77,7 @@ function renderEduTabs() {
       <button
         type="button"
         class="edu-tab ${currentEduCategory === category ? "active" : ""}"
-        onclick="setEduCategory('${escapeHtml(category).replace(/'/g, "\\'")}')"
+        onclick="setEduCategory(${JSON.stringify(category)})"
       >
         ${escapeHtml(category)}
       </button>
@@ -112,11 +101,11 @@ function renderEduCards(data) {
   area.innerHTML = data.map((item, index) => {
     const bgClass = `edu-bg-${(index % 6) + 1}`;
     const imageHtml = item.image
-      ? `<img class="edu-card-image" src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+      ? `<img class="edu-card-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
       : `<div class="edu-card-image" style="display:flex;align-items:center;justify-content:center;">이미지 없음</div>`;
 
     return `
-      <article class="edu-card-new ${bgClass}" onclick="openEduModal('${escapeHtml(item.id).replace(/'/g, "\\'")}')">
+      <article class="edu-card-new ${bgClass}" onclick="openEduModal(${JSON.stringify(String(item.id))})">
         <div class="edu-card-image-wrap">
           ${imageHtml}
         </div>
@@ -156,6 +145,7 @@ function handleEduSearchInput() {
 function clearEduSearch() {
   const input = document.getElementById("edu-search-input");
   if (input) input.value = "";
+  currentEduCategory = "all";
   renderEdu();
 }
 
@@ -193,11 +183,11 @@ function openEduModal(id) {
     ? images.map((img, index) => `
         <div class="edu-gallery-item">
           <img
-            src="${img}"
+            src="${escapeHtml(img)}"
             alt="${escapeHtml(item.title)} ${index + 1}"
             class="edu-gallery-img"
             loading="lazy"
-            onclick="openEduLightboxById('${escapeHtml(item.id).replace(/'/g, "\\'")}', ${index})"
+            onclick="openEduLightboxById(${JSON.stringify(String(item.id))}, ${index})"
           />
         </div>
       `).join("")
@@ -275,18 +265,25 @@ function moveEduLightbox(direction) {
 function applyEduQueryParams() {
   const params = new URLSearchParams(location.search);
   const section = params.get("section");
-  const keyword = params.get("keyword");
+  const keyword = (params.get("keyword") || "").trim();
 
   if (section === "edu" && typeof openSection === "function") {
     openSection("edu");
+  } else if (section === "test" && typeof openSection === "function") {
+    openSection("test");
   }
 
-  if (keyword) {
+  if (section === "edu" && keyword) {
     const input = document.getElementById("edu-search-input");
-    if (input) {
-      input.value = keyword;
-      renderEdu();
-    }
+    if (input) input.value = keyword;
+  }
+
+  if (section === "edu" && typeof renderEdu === "function") {
+    renderEdu();
+  }
+
+  if (section === "test" && typeof resetTestView === "function") {
+    resetTestView();
   }
 }
 
