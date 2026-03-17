@@ -29,8 +29,7 @@
       flex-wrap: wrap;
     }
 
-    .home-btn,
-    .back-nav-btn {
+    .home-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -41,14 +40,7 @@
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-    }
-
-    .home-btn {
       background: #111827;
-    }
-
-    .back-nav-btn {
-      background: #d8006c;
     }
 
     .top-bar {
@@ -563,7 +555,6 @@
 <body>
   <div class="wrap">
     <div class="top-actions">
-      <button class="back-nav-btn" onclick="goBackSafe()">← 뒤로가기</button>
       <button class="home-btn" onclick="location.href='index.html'">🏠 홈</button>
     </div>
 
@@ -607,7 +598,7 @@
             <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
           </div>
           <div class="panel-actions">
-            <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
+            <button class="back-btn" onclick="goBackStep()">뒤로가기</button>
             <button class="mini-home-btn" onclick="location.href='index.html'">홈</button>
           </div>
         </div>
@@ -623,7 +614,7 @@
             <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 확인하세요.</p>
           </div>
           <div class="panel-actions">
-            <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
+            <button class="back-btn" onclick="goBackStep()">뒤로가기</button>
             <button class="mini-home-btn" onclick="location.href='index.html'">홈</button>
           </div>
         </div>
@@ -673,16 +664,18 @@
     const searchMsg = document.getElementById("searchMsg");
     const globalSearchInput = document.getElementById("globalSearchInput");
 
-    function goBackSafe() {
-      if (window.history.length > 1 && document.referrer) {
-        history.back();
-      } else if (topicView.classList.contains("active")) {
+    function goBackStep() {
+      if (topicView.classList.contains("active")) {
         showView("chapter");
-      } else if (chapterView.classList.contains("active")) {
-        showView("main");
-      } else {
-        location.href = "index.html";
+        return;
       }
+
+      if (chapterView.classList.contains("active")) {
+        showView("main");
+        return;
+      }
+
+      showView("main");
     }
 
     function normalizeText(value) {
@@ -817,31 +810,41 @@
     }
 
     function buildTagLinks(text) {
-      const raw = normalizeText(text);
-      if (!raw) return "";
+      const raw = String(text ?? "");
+      if (!raw.trim()) return "";
 
-      const matches = raw.match(/#(상품자료|SOP|테스트):([^\s#]+)/g);
-      if (!matches) return "";
+      const regex = /#(상품자료|SOP|테스트)(?::|\s+)([^\n#]+)/g;
+      const found = [];
+      let match;
 
-      const unique = [...new Set(matches)];
+      while ((match = regex.exec(raw)) !== null) {
+        const section = normalizeText(match[1]);
+        const keyword = normalizeText(match[2]);
+        if (!section || !keyword) continue;
+
+        const key = `${section}__${keyword}`;
+        if (!found.some(item => item.key === key)) {
+          found.push({ key, section, keyword });
+        }
+      }
+
+      if (!found.length) return "";
 
       return `
         <div class="tag-link-wrap">
-          ${unique.map(tag => {
-            const cleaned = tag.replace(/^#/, "");
-            const [section, keyword] = cleaned.split(":");
-            const label = `#${section}:${keyword}`;
+          ${found.map(item => {
+            const label = `#${item.section} ${item.keyword}`;
 
-            if (section === "상품자료") {
-              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            if (item.section === "상품자료") {
+              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
             }
 
-            if (section === "테스트") {
-              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            if (item.section === "테스트") {
+              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
             }
 
-            if (section === "SOP") {
-              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            if (item.section === "SOP") {
+              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
             }
 
             return "";
@@ -967,10 +970,6 @@
 
     function showMain() {
       showView("main");
-    }
-
-    function backToChapter() {
-      showView("chapter");
     }
 
     function showView(name) {
