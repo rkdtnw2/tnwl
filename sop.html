@@ -693,9 +693,8 @@
         .replace(/\uFEFF/g, "")
         .replace(/\u200B/g, "")
         .replace(/\u00A0/g, " ")
-        .replace(/\s+/g, "")
-        .trim()
-        .toLowerCase();
+        .toLowerCase()
+        .replace(/[^가-힣a-z0-9]/g, "");
     }
 
     function escapeHtml(value) {
@@ -770,12 +769,12 @@
 
     function extractSlideTags(text) {
       const raw = String(text ?? "");
-      const regex = /#([^\s#]+)/g;
+      const regex = /#([가-힣a-zA-Z0-9]+)/g;
       const found = [];
       let match;
 
       while ((match = regex.exec(raw)) !== null) {
-        const keyword = normalizeText(match[1]);
+        const keyword = String(match[1] || "").trim();
         if (!keyword) continue;
 
         if (!found.some(item => item.keyword === keyword)) {
@@ -788,7 +787,7 @@
 
     function removeSlideTags(text) {
       return String(text ?? "")
-        .replace(/#([^\s#]+)/g, "")
+        .replace(/#([가-힣a-zA-Z0-9]+)/g, "")
         .replace(/\n{3,}/g, "\n\n")
         .replace(/[ \t]{2,}/g, " ")
         .trim();
@@ -878,16 +877,33 @@
         for (let t = 0; t < chapter.topics.length; t++) {
           const topic = chapter.topics[t];
           const topicTitleKey = normalizeKeywordForMatch(topic.title);
+          const topicSummaryKey = normalizeKeywordForMatch(topic.summary);
 
-          if (topicTitleKey.includes(key)) {
+          if (topicTitleKey.includes(key) || topicSummaryKey.includes(key)) {
             openChapter(c);
             openTopic(t);
+            window.scrollTo({ top: 0, behavior: "smooth" });
             return;
+          }
+
+          for (let s = 0; s < topic.slides.length; s++) {
+            const slide = topic.slides[s];
+            const slideTitleKey = normalizeKeywordForMatch(slide.title);
+            const slideContentKey = normalizeKeywordForMatch(slide.content);
+
+            if (slideTitleKey.includes(key) || slideContentKey.includes(key)) {
+              openChapter(c);
+              openTopic(t);
+              currentSlideIndex = s;
+              renderSlides();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              return;
+            }
           }
         }
       }
 
-      alert("연결된 topicTitle을 찾지 못했습니다.");
+      alert(`"${keyword}" 와 연결된 topicTitle을 찾지 못했습니다.`);
     }
 
     function buildSlideTagButtons(text) {
@@ -900,13 +916,26 @@
             <button
               type="button"
               class="tag-link"
-              onclick="event.stopPropagation(); goToTopicByKeyword(${JSON.stringify(tag.keyword)})"
+              data-topic-jump="${escapeAttr(tag.keyword)}"
             >
               ${escapeHtml("#" + tag.keyword)}
             </button>
           `).join("")}
         </div>
       `;
+    }
+
+    function bindTopicJumpEvents() {
+      document.addEventListener("click", (event) => {
+        const btn = event.target.closest(".tag-link[data-topic-jump]");
+        if (!btn) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const keyword = btn.getAttribute("data-topic-jump") || "";
+        goToTopicByKeyword(keyword);
+      });
     }
 
     function renderChapters() {
@@ -1216,7 +1245,10 @@
       }
     }
 
-    document.addEventListener("DOMContentLoaded", initSopPage);
+    document.addEventListener("DOMContentLoaded", () => {
+      bindTopicJumpEvents();
+      initSopPage();
+    });
   </script>
 </body>
 </html>
