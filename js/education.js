@@ -1,1152 +1,334 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOP 매뉴얼</title>
-  <style>
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: 'Pretendard', sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
-
-    .wrap {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 28px 20px 60px;
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .home-btn,
-    .back-nav-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: none;
-      color: #fff;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .home-btn {
-      background: #111827;
-    }
-
-    .back-nav-btn {
-      background: #d8006c;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    .title-area h1 {
-      margin: 0 0 8px;
-      font-size: 40px;
-      font-weight: 800;
-      letter-spacing: -0.6px;
-    }
-
-    .title-area p {
-      margin: 0;
-      color: #6b7280;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-
-    .search-wrap {
-      min-width: 320px;
-      max-width: 460px;
-      width: 100%;
-    }
-
-    .search-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 10px;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
-      flex-wrap: wrap;
-    }
-
-    .search-input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 14px;
-      font-family: 'Pretendard', sans-serif;
-      padding: 8px 10px;
-      background: transparent;
-      color: #111827;
-      min-width: 200px;
-    }
-
-    .search-btn,
-    .search-reset-btn {
-      border: none;
-      color: #fff;
-      border-radius: 12px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .search-btn { background: #111827; }
-    .search-reset-btn { background: #d8006c; }
-
-    .search-msg {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #d8006c;
-      min-height: 42px;
-      line-height: 1.6;
-      white-space: normal;
-    }
-
-    .view { display: none; }
-    .view.active { display: block; }
-
-    .chapter-list {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .chapter-card {
-      background: #fff;
-      border-radius: 22px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
-      border: 1px solid #ececec;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      min-height: 320px;
-    }
-
-    .chapter-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
-    }
-
-    .chapter-thumb {
-      width: 100%;
-      height: 170px;
-      overflow: hidden;
-      background: #e5e7eb;
-    }
-
-    .chapter-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .chapter-body {
-      padding: 18px 16px 16px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .chapter-title {
-      font-size: 21px;
-      font-weight: 800;
-      margin: 0 0 10px;
-      line-height: 1.4;
-      letter-spacing: -0.3px;
-    }
-
-    .chapter-summary {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6;
-      margin-bottom: 18px;
-      min-height: 66px;
-      white-space: pre-line;
-    }
-
-    .chapter-meta {
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 10px;
-    }
-
-    .chapter-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .chapter-label {
-      font-size: 13px;
-      color: #ec4899;
-      font-weight: 800;
-    }
-
-    .chapter-sub {
-      font-size: 13px;
-      color: #9ca3af;
-    }
-
-    .chapter-btn {
-      min-width: 82px;
-      height: 56px;
-      border: none;
-      border-radius: 14px;
-      background: #f3f4f6;
-      color: #111827;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .panel {
-      background: #fff;
-      border-radius: 24px;
-      padding: 24px;
-      border: 1px solid #ececec;
-      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
-    }
-
-    .panel-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .panel-title {
-      margin: 0;
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-    }
-
-    .panel-desc {
-      margin: 6px 0 0;
-      color: #6b7280;
-      font-size: 14px;
-      line-height: 1.6;
-      white-space: pre-line;
-    }
-
-    .back-btn {
-      border: none;
-      background: #111827;
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .topic-list {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .topic-card {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 20px;
-      padding: 22px 20px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .topic-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.06);
-      border-color: #f3c0d8;
-    }
-
-    .topic-card h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1.4;
-      letter-spacing: -0.2px;
-    }
-
-    .topic-card p {
-      margin: 0;
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.7;
-      white-space: pre-line;
-    }
-
-    .slide-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .slide-count {
-      font-size: 14px;
-      color: #6b7280;
-      font-weight: 700;
-    }
-
-    .slide-nav {
-      display: flex;
-      gap: 8px;
-    }
-
-    .slide-nav button {
-      border: none;
-      background: #ec4899;
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .slide-nav button:disabled {
-      background: #d1d5db;
-      cursor: not-allowed;
-    }
-
-    .slide-page {
-      display: none;
-      border: 1px solid #e5e7eb;
-      border-radius: 20px;
-      padding: 24px;
-      background: #fafafa;
-    }
-
-    .slide-page.active {
-      display: block;
-    }
-
-    .slide-layout {
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .field-label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #374151;
-    }
-
-    .slide-title-box,
-    .slide-content-box {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-family: 'Pretendard', sans-serif;
-      background: #fff;
-      outline: none;
-    }
-
-    .slide-title-box {
-      margin-bottom: 16px;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.5;
-      white-space: pre-line;
-    }
-
-    .slide-content-box {
-      min-height: 320px;
-      font-size: 14px;
-      line-height: 1.8;
-      white-space: pre-line;
-    }
-
-    .tag-link-wrap {
-      margin-top: 16px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .tag-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #fff1f6;
-      color: #d8006c;
-      border: 1px solid #f5c2d8;
-      border-radius: 999px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-weight: 800;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .tag-link:hover {
-      background: #ffe7f1;
-    }
-
-    .image-box {
-      background: #fff;
-      border: 1px dashed #d1d5db;
-      border-radius: 18px;
-      padding: 16px;
-    }
-
-    .preview {
-      width: 100%;
-      height: 320px;
-      border-radius: 14px;
-      background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #9ca3af;
-      font-size: 14px;
-      overflow: hidden;
-      text-align: center;
-      padding: 10px;
-    }
-
-    .preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 12px;
-    }
-
-    .slide-dots {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .slide-dots button {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: none;
-      background: #e5e7eb;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .slide-dots button.active {
-      background: #111827;
-      color: #fff;
-    }
-
-    .loading-box,
-    .error-box,
-    .empty-box {
-      background: #fff;
-      border-radius: 20px;
-      padding: 28px;
-      text-align: center;
-      border: 1px solid #e5e7eb;
-      color: #6b7280;
-    }
-
-    .loading-box strong,
-    .error-box strong,
-    .empty-box strong {
-      display: block;
-      margin-bottom: 8px;
-      color: #111827;
-    }
-
-    @media (max-width: 1100px) {
-      .chapter-list,
-      .topic-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .slide-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .chapter-list,
-      .topic-list {
-        grid-template-columns: 1fr;
-      }
-
-      .title-area h1 {
-        font-size: 32px;
-      }
-
-      .title-area p {
-        font-size: 16px;
-      }
-
-      .search-wrap {
-        width: 100%;
-        min-width: 0;
-        max-width: none;
-      }
-
-      .search-btn,
-      .search-reset-btn {
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="top-actions">
-      <button class="back-nav-btn" onclick="goBackSafe()">← 뒤로가기</button>
-      <button class="home-btn" onclick="location.href='index.html'">🏠 홈</button>
-    </div>
-
-    <div class="top-bar">
-      <div class="title-area">
-        <h1>SOP 매뉴얼</h1>
-        <p>교육 챕터와 주제를 체계적으로 정리하고 바로 찾아볼 수 있는 페이지</p>
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function normalizeEduText(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function getEduCategories() {
+  const categories = [...new Set((eduData || []).map(item => item.category).filter(Boolean))];
+  return categories;
+}
+
+function getEduFilteredData() {
+  const keyword = normalizeEduText(document.getElementById("edu-search-input")?.value || "");
+
+  return (eduData || []).filter(item => {
+    const matchCategory =
+      currentEduCategory === "all" || item.category === currentEduCategory;
+
+    if (!matchCategory) return false;
+    if (!keyword) return true;
+
+    const haystack = [
+      item.category,
+      item.title,
+      item.desc,
+      item.meta,
+      ...(item.points || []),
+      item.script
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(keyword);
+  });
+}
+
+function updateEduCountBadge(data) {
+  const badge = document.getElementById("edu-count-badge");
+  if (!badge) return;
+  badge.textContent = `${data.length}개 항목`;
+}
+
+function updateEduSearchStatus(data) {
+  const status = document.getElementById("edu-search-status");
+  const input = document.getElementById("edu-search-input");
+  if (!status || !input) return;
+
+  const keyword = input.value.trim();
+
+  if (!keyword && currentEduCategory === "all") {
+    status.textContent = "";
+    return;
+  }
+
+  const parts = [];
+  if (currentEduCategory !== "all") {
+    parts.push(`카테고리: ${currentEduCategory}`);
+  }
+  if (keyword) {
+    parts.push(`검색어: "${keyword}"`);
+  }
+
+  status.textContent = `${parts.join(" · ")} · ${data.length}건`;
+}
+
+function renderEduTabs() {
+  const tabs = document.getElementById("eduTabs");
+  if (!tabs) return;
+
+  const categories = getEduCategories();
+
+  tabs.innerHTML = `
+    <button
+      type="button"
+      class="edu-tab ${currentEduCategory === "all" ? "active" : ""}"
+      onclick="setEduCategory('all')"
+    >
+      전체
+    </button>
+    ${categories.map(category => `
+      <button
+        type="button"
+        class="edu-tab ${currentEduCategory === category ? "active" : ""}"
+        onclick="setEduCategory('${escapeHtml(category).replace(/'/g, "\\'")}')"
+      >
+        ${escapeHtml(category)}
+      </button>
+    `).join("")}
+  `;
+}
+
+function renderEduCards(data) {
+  const area = document.getElementById("edu-content-area");
+  if (!area) return;
+
+  if (!data.length) {
+    area.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        등록된 상품자료가 없습니다.
       </div>
+    `;
+    return;
+  }
 
-      <div class="search-wrap">
-        <div class="search-area">
-          <input
-            id="globalSearchInput"
-            class="search-input"
-            type="text"
-            placeholder="챕터, 교육 주제, 슬라이드 제목/내용 검색"
-            onkeydown="handleSearchEnter(event)"
-            oninput="resetSearchState()"
+  area.innerHTML = data.map((item, index) => {
+    const bgClass = `edu-bg-${(index % 6) + 1}`;
+    const imageHtml = item.image
+      ? `<img class="edu-card-image" src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+      : `<div class="edu-card-image" style="display:flex;align-items:center;justify-content:center;">이미지 없음</div>`;
+
+    return `
+      <article class="edu-card-new ${bgClass}" onclick="openEduModal('${escapeHtml(item.id).replace(/'/g, "\\'")}')">
+        <div class="edu-card-image-wrap">
+          ${imageHtml}
+        </div>
+
+        <div class="edu-card-top-new">
+          <span class="edu-badge-new">${escapeHtml(item.category || "기타")}</span>
+          <span class="edu-icon-new">${escapeHtml(item.icon || "📘")}</span>
+        </div>
+
+        <div class="edu-card-bottom-new">
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.desc || "설명이 없습니다.")}</p>
+          <div class="edu-meta-new">${escapeHtml(item.meta || "")}</div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderEdu() {
+  const filtered = getEduFilteredData();
+  renderEduTabs();
+  renderEduCards(filtered);
+  updateEduCountBadge(filtered);
+  updateEduSearchStatus(filtered);
+}
+
+function setEduCategory(category) {
+  currentEduCategory = category;
+  renderEdu();
+}
+
+function handleEduSearchInput() {
+  renderEdu();
+}
+
+function clearEduSearch() {
+  const input = document.getElementById("edu-search-input");
+  if (input) input.value = "";
+  renderEdu();
+}
+
+function findEduItemById(id) {
+  return (eduData || []).find(item => String(item.id) === String(id));
+}
+
+function openEduModal(id) {
+  const item = findEduItemById(id);
+  if (!item) return;
+
+  const modal = document.getElementById("eduModal");
+  const category = document.getElementById("modalCategory");
+  const title = document.getElementById("modalTitle");
+  const desc = document.getElementById("modalDesc");
+  const points = document.getElementById("modalPoints");
+  const script = document.getElementById("modalScript");
+  const gallery = document.getElementById("modalGallery");
+
+  if (!modal || !category || !title || !desc || !points || !script || !gallery) return;
+
+  category.textContent = item.category || "기타";
+  title.textContent = item.title || "제목 없음";
+  desc.textContent = item.desc || "설명이 없습니다.";
+
+  points.innerHTML = (item.points && item.points.length)
+    ? item.points.map(point => `<li>${escapeHtml(point)}</li>`).join("")
+    : `<li>등록된 핵심 포인트가 없습니다.</li>`;
+
+  script.textContent = item.script || "추천 멘트가 없습니다.";
+
+  const images = item.images && item.images.length ? item.images : (item.image ? [item.image] : []);
+
+  gallery.innerHTML = images.length
+    ? images.map((img, index) => `
+        <div class="edu-gallery-item">
+          <img
+            src="${img}"
+            alt="${escapeHtml(item.title)} ${index + 1}"
+            class="edu-gallery-img"
+            loading="lazy"
+            onclick="openEduLightboxById('${escapeHtml(item.id).replace(/'/g, "\\'")}', ${index})"
           />
-          <button class="search-btn" onclick="searchKeyword()">검색</button>
-          <button class="search-reset-btn" onclick="resetAllSearch()">초기화</button>
         </div>
-        <div id="searchMsg" class="search-msg"></div>
-      </div>
-    </div>
+      `).join("")
+    : `<div class="empty-state" style="grid-column:1 / -1;">등록된 이미지가 없습니다.</div>`;
 
-    <div id="loadingView" class="loading-box">
-      <strong>불러오는 중입니다.</strong>
-      <div>구글시트 데이터를 확인하고 있어요.</div>
-    </div>
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
 
-    <div id="mainView" class="view">
-      <div class="chapter-list" id="chapterList"></div>
-    </div>
+function closeEduModal() {
+  const modal = document.getElementById("eduModal");
+  if (!modal) return;
+  modal.classList.remove("show");
+  document.body.style.overflow = "";
+}
 
-    <div id="chapterView" class="view">
-      <div class="panel">
-        <div class="panel-top">
-          <div>
-            <h2 id="chapterViewTitle" class="panel-title">챕터</h2>
-            <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
-          </div>
-          <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
-        </div>
-        <div class="topic-list" id="topicList"></div>
-      </div>
-    </div>
+function openEduLightbox(images, startIndex, title) {
+  const lightbox = document.getElementById("eduLightbox");
+  if (!lightbox) return;
 
-    <div id="topicView" class="view">
-      <div class="panel">
-        <div class="panel-top">
-          <div>
-            <h2 id="topicViewTitle" class="panel-title">교육 주제</h2>
-            <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 확인하세요.</p>
-          </div>
-          <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
-        </div>
+  currentLightboxImages = images || [];
+  currentLightboxIndex = startIndex || 0;
+  currentLightboxTitle = title || "";
 
-        <div class="slide-toolbar">
-          <div id="slideCount" class="slide-count">슬라이드 1 / 1</div>
-          <div class="slide-nav">
-            <button id="prevSlideBtn" onclick="moveSlide(-1)">이전</button>
-            <button id="nextSlideBtn" onclick="moveSlide(1)">다음</button>
-          </div>
-        </div>
+  updateEduLightbox();
+  lightbox.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
 
-        <div id="slidePages"></div>
-        <div id="slideDots" class="slide-dots"></div>
-      </div>
-    </div>
-  </div>
+function openEduLightboxById(id, startIndex = 0) {
+  const item = findEduItemById(id);
+  if (!item) return;
 
-  <script>
-    const SOP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROVBZlJbe3DKK0q9NT8aYjcob7lhscT_O88TrdqhfUMWx1vIWX0vSiEH4M0Iq1iebOCe6Z_W20_cWM/pub?gid=1357931266&single=true&output=csv";
+  const images = item.images && item.images.length ? item.images : (item.image ? [item.image] : []);
+  if (!images.length) return;
 
-    let appData = [];
-    let currentChapterIndex = null;
-    let currentTopicIndex = null;
-    let currentSlideIndex = 0;
+  openEduLightbox(images, startIndex, item.title || "");
+}
 
-    let searchResults = [];
-    let currentSearchIndex = -1;
-    let lastKeyword = "";
+function closeEduLightbox() {
+  const lightbox = document.getElementById("eduLightbox");
+  if (!lightbox) return;
 
-    const loadingView = document.getElementById("loadingView");
-    const mainView = document.getElementById("mainView");
-    const chapterView = document.getElementById("chapterView");
-    const topicView = document.getElementById("topicView");
+  lightbox.classList.remove("show");
+  currentLightboxImages = [];
+  currentLightboxIndex = 0;
+  currentLightboxTitle = "";
+  document.body.style.overflow = "";
+}
 
-    const chapterList = document.getElementById("chapterList");
-    const topicList = document.getElementById("topicList");
-    const chapterViewTitle = document.getElementById("chapterViewTitle");
-    const chapterViewDesc = document.getElementById("chapterViewDesc");
-    const topicViewTitle = document.getElementById("topicViewTitle");
-    const topicViewDesc = document.getElementById("topicViewDesc");
-    const slidePages = document.getElementById("slidePages");
-    const slideDots = document.getElementById("slideDots");
-    const slideCount = document.getElementById("slideCount");
-    const prevSlideBtn = document.getElementById("prevSlideBtn");
-    const nextSlideBtn = document.getElementById("nextSlideBtn");
-    const searchMsg = document.getElementById("searchMsg");
-    const globalSearchInput = document.getElementById("globalSearchInput");
+function updateEduLightbox() {
+  const img = document.getElementById("eduLightboxImg");
+  const counter = document.getElementById("eduLightboxCounter");
+  const prevBtn = document.getElementById("eduPrevBtn");
+  const nextBtn = document.getElementById("eduNextBtn");
 
-    function goBackSafe() {
-      if (window.history.length > 1 && document.referrer) {
-        history.back();
-      } else {
-        location.href = "index.html";
-      }
+  if (!img || !counter || !prevBtn || !nextBtn) return;
+  if (!currentLightboxImages.length) return;
+
+  img.src = currentLightboxImages[currentLightboxIndex];
+  img.alt = `${currentLightboxTitle} ${currentLightboxIndex + 1}`;
+  counter.textContent = `${currentLightboxIndex + 1} / ${currentLightboxImages.length}`;
+
+  prevBtn.disabled = currentLightboxIndex === 0;
+  nextBtn.disabled = currentLightboxIndex === currentLightboxImages.length - 1;
+}
+
+function moveEduLightbox(direction) {
+  const next = currentLightboxIndex + direction;
+  if (next < 0 || next >= currentLightboxImages.length) return;
+  currentLightboxIndex = next;
+  updateEduLightbox();
+}
+
+function applyEduQueryParams() {
+  const params = new URLSearchParams(location.search);
+  const section = params.get("section");
+  const keyword = params.get("keyword");
+
+  if (section === "edu" && typeof openSection === "function") {
+    openSection("edu");
+  }
+
+  if (keyword) {
+    const input = document.getElementById("edu-search-input");
+    if (input) {
+      input.value = keyword;
+      renderEdu();
     }
+  }
+}
 
-    function normalizeText(value) {
-      return String(value ?? "")
-        .replace(/\uFEFF/g, "")
-        .replace(/\u200B/g, "")
-        .replace(/\u00A0/g, " ")
-        .trim();
-    }
+function bindEduEvents() {
+  const modalClose = document.getElementById("eduModalClose");
+  const modalBackdrop = document.getElementById("eduModalBackdrop");
+  const lightboxClose = document.getElementById("eduLightboxClose");
+  const lightboxBackdrop = document.getElementById("eduLightboxBackdrop");
+  const prevBtn = document.getElementById("eduPrevBtn");
+  const nextBtn = document.getElementById("eduNextBtn");
 
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let current = "";
-      let inQuotes = false;
+  if (modalClose) modalClose.addEventListener("click", closeEduModal);
+  if (modalBackdrop) modalBackdrop.addEventListener("click", closeEduModal);
 
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1];
+  if (lightboxClose) lightboxClose.addEventListener("click", closeEduLightbox);
+  if (lightboxBackdrop) lightboxBackdrop.addEventListener("click", closeEduLightbox);
 
-        if (char === '"') {
-          if (inQuotes && next === '"') {
-            current += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === "," && !inQuotes) {
-          row.push(current);
-          current = "";
-        } else if ((char === "\n" || char === "\r") && !inQuotes) {
-          if (char === "\r" && next === "\n") i++;
-          row.push(current);
-          if (row.some(cell => cell !== "")) rows.push(row);
-          row = [];
-          current = "";
-        } else {
-          current += char;
-        }
-      }
+  if (prevBtn) prevBtn.addEventListener("click", () => moveEduLightbox(-1));
+  if (nextBtn) nextBtn.addEventListener("click", () => moveEduLightbox(1));
 
-      if (current !== "" || row.length > 0) {
-        row.push(current);
-        if (row.some(cell => cell !== "")) rows.push(row);
-      }
+  document.addEventListener("keydown", (event) => {
+    const modal = document.getElementById("eduModal");
+    const lightbox = document.getElementById("eduLightbox");
 
-      if (!rows.length) return [];
-
-      const headers = rows[0].map(h => normalizeText(h));
-      return rows.slice(1).map(cols => {
-        const obj = {};
-        headers.forEach((header, idx) => {
-          obj[header] = normalizeText(cols[idx] || "");
-        });
-        return obj;
-      });
-    }
-
-    function safeNumber(value, fallback = 0) {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : fallback;
-    }
-
-    function buildAppData(rows) {
-      const chapterMap = new Map();
-
-      rows.forEach((row, idx) => {
-        const chapterId = normalizeText(row.chapterId || row.chapterid || row["chapter_id"]) || `chapter-${idx}`;
-        const chapterTitle = normalizeText(row.chapterTitle || row.chaptertitle || row["chapter_title"]) || "챕터 제목 없음";
-        const chapterSummary = normalizeText(row.chapterSummary || row.chaptersummary || row["chapter_summary"]);
-        const chapterLabel = normalizeText(row.chapterLabel || row.chapterlabel || row["chapter_label"]) || "SOP";
-        const chapterImage = normalizeText(row.chapterImage || row.chapterimage || row["chapter_image"]);
-        const topicId = normalizeText(row.topicId || row.topicid || row["topic_id"]) || `topic-${idx}`;
-        const topicTitle = normalizeText(row.topicTitle || row.topictitle || row["topic_title"]) || "주제 제목 없음";
-        const topicSummary = normalizeText(row.topicSummary || row.topicsummary || row["topic_summary"]);
-        const slideNo = safeNumber(row.slideNo || row.slideno || row["slide_no"], 1);
-        const slideTitle = normalizeText(row.slideTitle || row.slidetitle || row["slide_title"]) || `${topicTitle} - 슬라이드 ${slideNo}`;
-        const slideContent = normalizeText(row.slideContent || row.slidecontent || row["slide_content"]);
-        const imageUrl = normalizeText(row.imageUrl || row.imageurl || row["image_url"]);
-
-        if (!chapterMap.has(chapterId)) {
-          chapterMap.set(chapterId, {
-            id: chapterId,
-            title: chapterTitle,
-            summary: chapterSummary,
-            label: chapterLabel,
-            sub: "",
-            image: chapterImage,
-            topics: []
-          });
-        }
-
-        const chapter = chapterMap.get(chapterId);
-        let topic = chapter.topics.find(t => t.id === topicId);
-
-        if (!topic) {
-          topic = {
-            id: topicId,
-            title: topicTitle,
-            summary: topicSummary,
-            slides: []
-          };
-          chapter.topics.push(topic);
-        }
-
-        topic.slides.push({
-          slideNo,
-          title: slideTitle,
-          content: slideContent,
-          image: imageUrl
-        });
-      });
-
-      const chapters = Array.from(chapterMap.values());
-
-      chapters.forEach(chapter => {
-        chapter.topics.forEach(topic => {
-          topic.slides.sort((a, b) => a.slideNo - b.slideNo);
-        });
-        chapter.sub = `주제 ${chapter.topics.length}개`;
-      });
-
-      return chapters;
-    }
-
-    async function fetchSopSheetData() {
-      const url = SOP_CSV_URL + (SOP_CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now();
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("SOP 구글시트 데이터를 불러오지 못했습니다.");
-      const csvText = await res.text();
-      return parseCSV(csvText);
-    }
-
-    function buildTagLinks(text) {
-      const raw = normalizeText(text);
-      if (!raw) return "";
-
-      const matches = raw.match(/#(상품자료|SOP|테스트):([^\s#]+)/g);
-      if (!matches) return "";
-
-      const unique = [...new Set(matches)];
-
-      return `
-        <div class="tag-link-wrap">
-          ${unique.map(tag => {
-            const cleaned = tag.replace(/^#/, "");
-            const [section, keyword] = cleaned.split(":");
-            const label = `#${section}:${keyword}`;
-
-            if (section === "상품자료") {
-              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            if (section === "테스트") {
-              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            if (section === "SOP") {
-              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            return "";
-          }).join("")}
-        </div>
-      `;
-    }
-
-    function renderChapters() {
-      if (!appData.length) {
-        chapterList.innerHTML = `
-          <div class="empty-box" style="grid-column: 1 / -1;">
-            <strong>등록된 SOP 데이터가 없습니다.</strong>
-            <div>구글시트 내용을 확인해 주세요.</div>
-          </div>
-        `;
+    if (event.key === "Escape") {
+      if (lightbox && lightbox.classList.contains("show")) {
+        closeEduLightbox();
         return;
       }
-
-      chapterList.innerHTML = appData.map((chapter, index) => `
-        <div class="chapter-card" onclick="openChapter(${index})">
-          <div class="chapter-thumb">
-            ${chapter.image ? `<img src="${escapeAttr(chapter.image)}" alt="${escapeHtml(chapter.title)}">` : ""}
-          </div>
-          <div class="chapter-body">
-            <h3 class="chapter-title">${escapeHtml(chapter.title)}</h3>
-            <div class="chapter-summary">${escapeHtml(chapter.summary || "챕터 설명이 없습니다.")}</div>
-            <div class="chapter-meta">
-              <div class="chapter-info">
-                <span class="chapter-label">${escapeHtml(chapter.label)}</span>
-                <span class="chapter-sub">${escapeHtml(chapter.sub)}</span>
-              </div>
-              <button class="chapter-btn" type="button">들어가기</button>
-            </div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function openChapter(index) {
-      currentChapterIndex = index;
-      const chapter = appData[index];
-
-      chapterViewTitle.textContent = chapter.title;
-      chapterViewDesc.textContent = chapter.summary || "챕터 안의 교육 주제를 선택하세요.";
-
-      topicList.innerHTML = chapter.topics.map((topic, topicIndex) => `
-        <div class="topic-card" onclick="openTopic(${topicIndex})">
-          <h3>${escapeHtml(topic.title)}</h3>
-          <p>${escapeHtml(topic.summary || "주제 설명이 없습니다.")}</p>
-        </div>
-      `).join("");
-
-      showView("chapter");
-    }
-
-    function openTopic(topicIndex) {
-      currentTopicIndex = topicIndex;
-      currentSlideIndex = 0;
-
-      const chapter = appData[currentChapterIndex];
-      const topic = chapter.topics[topicIndex];
-
-      topicViewTitle.textContent = topic.title;
-      topicViewDesc.textContent = topic.summary || "슬라이드 내용을 확인하세요.";
-
-      renderSlides();
-      showView("topic");
-    }
-
-    function renderSlides() {
-      const topic = appData[currentChapterIndex].topics[currentTopicIndex];
-
-      slidePages.innerHTML = topic.slides.map((slide, idx) => `
-        <div class="slide-page ${idx === currentSlideIndex ? "active" : ""}">
-          <div class="slide-layout">
-            <div>
-              <label class="field-label">슬라이드 제목</label>
-              <div class="slide-title-box">${escapeHtml(slide.title)}</div>
-
-              <label class="field-label">슬라이드 내용</label>
-              <div class="slide-content-box">${escapeHtml(slide.content || "내용이 없습니다.")}</div>
-
-              ${buildTagLinks(slide.content)}
-            </div>
-
-            <div class="image-box">
-              <label class="field-label">이미지</label>
-              <div class="preview">
-                ${slide.image ? `<img src="${escapeAttr(slide.image)}" alt="${escapeHtml(slide.title)}">` : "이미지가 없습니다"}
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join("");
-
-      slideDots.innerHTML = topic.slides.map((_, idx) => `
-        <button class="${idx === currentSlideIndex ? "active" : ""}" onclick="goSlide(${idx})">${idx + 1}</button>
-      `).join("");
-
-      updateSlideToolbar();
-    }
-
-    function updateSlideToolbar() {
-      const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
-      slideCount.textContent = `슬라이드 ${currentSlideIndex + 1} / ${total}`;
-      prevSlideBtn.disabled = currentSlideIndex === 0;
-      nextSlideBtn.disabled = currentSlideIndex === total - 1;
-    }
-
-    function moveSlide(direction) {
-      const total = appData[currentChapterIndex].topics[currentTopicIndex].slides.length;
-      const next = currentSlideIndex + direction;
-      if (next < 0 || next >= total) return;
-      currentSlideIndex = next;
-      renderSlides();
-    }
-
-    function goSlide(index) {
-      currentSlideIndex = index;
-      renderSlides();
-    }
-
-    function showMain() {
-      showView("main");
-    }
-
-    function backToChapter() {
-      showView("chapter");
-    }
-
-    function showView(name) {
-      loadingView.style.display = "none";
-      mainView.classList.remove("active");
-      chapterView.classList.remove("active");
-      topicView.classList.remove("active");
-
-      if (name === "main") mainView.classList.add("active");
-      if (name === "chapter") chapterView.classList.add("active");
-      if (name === "topic") topicView.classList.add("active");
-    }
-
-    function handleSearchEnter(event) {
-      if (event.key === "Enter") {
-        searchKeyword();
+      if (modal && modal.classList.contains("show")) {
+        closeEduModal();
       }
     }
 
-    function resetSearchState() {
-      const currentKeyword = globalSearchInput.value.trim().toLowerCase();
-
-      if (currentKeyword !== lastKeyword) {
-        searchResults = [];
-        currentSearchIndex = -1;
-        lastKeyword = currentKeyword;
-      }
-
-      if (!currentKeyword) {
-        clearSearchMsg();
-      }
+    if (lightbox && lightbox.classList.contains("show")) {
+      if (event.key === "ArrowLeft") moveEduLightbox(-1);
+      if (event.key === "ArrowRight") moveEduLightbox(1);
     }
+  });
+}
 
-    function resetAllSearch() {
-      globalSearchInput.value = "";
-      searchResults = [];
-      currentSearchIndex = -1;
-      lastKeyword = "";
-      clearSearchMsg();
-      showMain();
-    }
-
-    function collectSearchResults(keyword) {
-      const results = [];
-
-      for (let c = 0; c < appData.length; c++) {
-        const chapter = appData[c];
-
-        if (
-          (chapter.title || "").toLowerCase().includes(keyword) ||
-          (chapter.summary || "").toLowerCase().includes(keyword)
-        ) {
-          results.push({
-            type: "chapter",
-            chapterIndex: c
-          });
-        }
-
-        for (let t = 0; t < chapter.topics.length; t++) {
-          const topic = chapter.topics[t];
-
-          if (
-            (topic.title || "").toLowerCase().includes(keyword) ||
-            (topic.summary || "").toLowerCase().includes(keyword)
-          ) {
-            results.push({
-              type: "topic",
-              chapterIndex: c,
-              topicIndex: t
-            });
-          }
-
-          for (let s = 0; s < topic.slides.length; s++) {
-            const slide = topic.slides[s];
-
-            if (
-              (slide.title || "").toLowerCase().includes(keyword) ||
-              (slide.content || "").toLowerCase().includes(keyword)
-            ) {
-              results.push({
-                type: "slide",
-                chapterIndex: c,
-                topicIndex: t,
-                slideIndex: s
-              });
-            }
-          }
-        }
-      }
-
-      return results;
-    }
-
-    function getChapterName(index) {
-      return appData[index]?.title || "";
-    }
-
-    function getTopicName(chapterIndex, topicIndex) {
-      return appData[chapterIndex]?.topics?.[topicIndex]?.title || "";
-    }
-
-    function searchKeyword() {
-      const rawKeyword = globalSearchInput.value.trim();
-      const keyword = rawKeyword.toLowerCase();
-
-      if (!keyword) {
-        setSearchMsg("검색어를 입력해주세요.");
-        searchResults = [];
-        currentSearchIndex = -1;
-        lastKeyword = "";
-        return;
-      }
-
-      if (lastKeyword !== keyword || searchResults.length === 0) {
-        searchResults = collectSearchResults(keyword);
-        currentSearchIndex = -1;
-        lastKeyword = keyword;
-      }
-
-      if (!searchResults.length) {
-        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과가 없습니다.`);
-        return;
-      }
-
-      currentSearchIndex++;
-      if (currentSearchIndex >= searchResults.length) {
-        currentSearchIndex = 0;
-      }
-
-      const result = searchResults[currentSearchIndex];
-      const chapterName = getChapterName(result.chapterIndex);
-      const topicName = result.topicIndex !== undefined
-        ? getTopicName(result.chapterIndex, result.topicIndex)
-        : "";
-
-      if (result.type === "chapter") {
-        openChapter(result.chapterIndex);
-        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)}`);
-        return;
-      }
-
-      if (result.type === "topic") {
-        openChapter(result.chapterIndex);
-        openTopic(result.topicIndex);
-        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)}`);
-        return;
-      }
-
-      if (result.type === "slide") {
-        openChapter(result.chapterIndex);
-        openTopic(result.topicIndex);
-        currentSlideIndex = result.slideIndex;
-        renderSlides();
-        setSearchMsg(`"${escapeHtml(rawKeyword)}" 검색 결과 ${currentSearchIndex + 1} / ${searchResults.length}<br>${escapeHtml(chapterName)} > ${escapeHtml(topicName)} > ${result.slideIndex + 1}번 슬라이드`);
-      }
-    }
-
-    function setSearchMsg(message) {
-      searchMsg.innerHTML = message;
-    }
-
-    function clearSearchMsg() {
-      searchMsg.innerHTML = "";
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;')
-        .replace(/'/g, "&#39;");
-    }
-
-    function escapeAttr(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    }
-
-    async function initSopPage() {
-      try {
-        const rows = await fetchSopSheetData();
-        appData = buildAppData(rows);
-
-        loadingView.style.display = "none";
-        renderChapters();
-        showMain();
-
-        const params = new URLSearchParams(location.search);
-        const keyword = normalizeText(params.get("keyword"));
-        if (keyword) {
-          globalSearchInput.value = keyword;
-          lastKeyword = "";
-          searchKeyword();
-        }
-      } catch (error) {
-        console.error(error);
-        loadingView.className = "error-box";
-        loadingView.innerHTML = `
-          <strong>로드 실패</strong>
-          <div>${String(error.message || "알 수 없는 오류가 발생했습니다.")}</div>
-        `;
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", initSopPage);
-  </script>
-</body>
-</html>
+document.addEventListener("DOMContentLoaded", () => {
+  bindEduEvents();
+  applyEduQueryParams();
+});
