@@ -800,15 +800,15 @@
             const label = `#${item.section} ${item.keyword}`;
 
             if (item.section === "상품자료") {
-              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(item.keyword)}" onclick="event.stopPropagation()">${escapeHtml(label)}</a>`;
             }
 
             if (item.section === "테스트") {
-              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(item.keyword)}" onclick="event.stopPropagation()">${escapeHtml(label)}</a>`;
             }
 
             if (item.section === "SOP") {
-              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(item.keyword)}" onclick="event.stopPropagation()">${escapeHtml(label)}</a>`;
             }
 
             return "";
@@ -910,8 +910,10 @@
           <div class="chapter-body">
             <h3 class="chapter-title">${escapeHtml(removeTagText(chapter.title) || "챕터 제목 없음")}</h3>
             ${buildTagLinks(chapter.title)}
+
             <div class="chapter-summary">${escapeHtml(removeTagText(chapter.summary || "챕터 설명이 없습니다."))}</div>
             ${buildTagLinks(chapter.summary)}
+
             <div class="chapter-meta">
               <div class="chapter-info">
                 <span class="chapter-label">${escapeHtml(chapter.label)}</span>
@@ -936,6 +938,7 @@
         <div class="topic-card" onclick="openTopic(${topicIndex})">
           <h3>${escapeHtml(removeTagText(topic.title) || "주제 제목 없음")}</h3>
           ${buildTagLinks(topic.title)}
+
           <p>${escapeHtml(removeTagText(topic.summary || "주제 설명이 없습니다."))}</p>
           ${buildTagLinks(topic.summary)}
         </div>
