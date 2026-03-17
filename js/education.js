@@ -1,5 +1,11 @@
+let eduQueryApplied = false;
+
 function normalizeEduText(value) {
   return String(value ?? "").trim().toLowerCase();
+}
+
+function getEduSearchInput() {
+  return document.getElementById("edu-search-input");
 }
 
 function getEduCategories() {
@@ -7,7 +13,7 @@ function getEduCategories() {
 }
 
 function getEduKeyword() {
-  const input = document.getElementById("edu-search-input");
+  const input = getEduSearchInput();
   return normalizeEduText(input ? input.value : "");
 }
 
@@ -42,7 +48,7 @@ function updateEduCountBadge(data) {
 
 function updateEduSearchStatus(data) {
   const status = document.getElementById("edu-search-status");
-  const input = document.getElementById("edu-search-input");
+  const input = getEduSearchInput();
   if (!status || !input) return;
 
   const keyword = input.value.trim();
@@ -101,7 +107,7 @@ function renderEduCards(data) {
   area.innerHTML = data.map((item, index) => {
     const bgClass = `edu-bg-${(index % 6) + 1}`;
     const imageHtml = item.image
-      ? `<img class="edu-card-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+      ? `<img class="edu-card-image" src="${escapeAttr(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
       : `<div class="edu-card-image" style="display:flex;align-items:center;justify-content:center;">이미지 없음</div>`;
 
     return `
@@ -125,7 +131,35 @@ function renderEduCards(data) {
   }).join("");
 }
 
+function applyEduQueryParams(force = false) {
+  if (eduQueryApplied && !force) return;
+
+  const params = new URLSearchParams(location.search);
+  const section = (params.get("section") || "").trim();
+  const keyword = (params.get("keyword") || "").trim();
+
+  if (section === "edu" && typeof openSection === "function") {
+    openSection("edu");
+  } else if (section === "test" && typeof openSection === "function") {
+    openSection("test");
+  }
+
+  if (section === "edu") {
+    const input = getEduSearchInput();
+    if (input && keyword) {
+      input.value = keyword;
+    }
+    eduQueryApplied = true;
+  }
+
+  if (section === "test") {
+    eduQueryApplied = true;
+  }
+}
+
 function renderEdu() {
+  applyEduQueryParams();
+
   const filtered = getEduFilteredData();
   renderEduTabs();
   renderEduCards(filtered);
@@ -143,7 +177,7 @@ function handleEduSearchInput() {
 }
 
 function clearEduSearch() {
-  const input = document.getElementById("edu-search-input");
+  const input = getEduSearchInput();
   if (input) input.value = "";
   currentEduCategory = "all";
   renderEdu();
@@ -183,7 +217,7 @@ function openEduModal(id) {
     ? images.map((img, index) => `
         <div class="edu-gallery-item">
           <img
-            src="${escapeHtml(img)}"
+            src="${escapeAttr(img)}"
             alt="${escapeHtml(item.title)} ${index + 1}"
             class="edu-gallery-img"
             loading="lazy"
@@ -262,31 +296,6 @@ function moveEduLightbox(direction) {
   updateEduLightbox();
 }
 
-function applyEduQueryParams() {
-  const params = new URLSearchParams(location.search);
-  const section = params.get("section");
-  const keyword = (params.get("keyword") || "").trim();
-
-  if (section === "edu" && typeof openSection === "function") {
-    openSection("edu");
-  } else if (section === "test" && typeof openSection === "function") {
-    openSection("test");
-  }
-
-  if (section === "edu" && keyword) {
-    const input = document.getElementById("edu-search-input");
-    if (input) input.value = keyword;
-  }
-
-  if (section === "edu" && typeof renderEdu === "function") {
-    renderEdu();
-  }
-
-  if (section === "test" && typeof resetTestView === "function") {
-    resetTestView();
-  }
-}
-
 function bindEduEvents() {
   const modalClose = document.getElementById("eduModalClose");
   const modalBackdrop = document.getElementById("eduModalBackdrop");
@@ -297,10 +306,8 @@ function bindEduEvents() {
 
   if (modalClose) modalClose.addEventListener("click", closeEduModal);
   if (modalBackdrop) modalBackdrop.addEventListener("click", closeEduModal);
-
   if (lightboxClose) lightboxClose.addEventListener("click", closeEduLightbox);
   if (lightboxBackdrop) lightboxBackdrop.addEventListener("click", closeEduLightbox);
-
   if (prevBtn) prevBtn.addEventListener("click", () => moveEduLightbox(-1));
   if (nextBtn) nextBtn.addEventListener("click", () => moveEduLightbox(1));
 
@@ -327,5 +334,5 @@ function bindEduEvents() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEduEvents();
-  applyEduQueryParams();
+  applyEduQueryParams(true);
 });
