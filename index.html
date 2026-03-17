@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>유림텔레콤 현장 대응 SOP 매뉴얼</title>
-  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/style.css?v=4" />
 </head>
 <body>
   <header>
@@ -61,6 +61,25 @@
           </div>
           <div class="data-badge" id="edu-count-badge">로딩 중...</div>
         </div>
+
+        <div class="edu-search-wrap">
+          <input
+            type="text"
+            id="edu-search-input"
+            class="edu-search-input"
+            placeholder="예: 아이폰, 결합, 인터넷, 멤버십"
+            oninput="handleEduSearchInput(event)"
+          />
+          <button
+            type="button"
+            class="edu-search-clear"
+            onclick="clearEduSearch()"
+          >
+            초기화
+          </button>
+        </div>
+
+        <div id="edu-search-status" class="edu-search-status"></div>
 
         <div class="edu-section-wrap">
           <div class="edu-toolbar" id="eduTabs"></div>
@@ -234,8 +253,8 @@
     }
   </script>
 
-  <script src="js/main.js?v=3" defer></script>
-  <script src="js/education.js?v=3" defer></script>
-  <script src="js/test.js?v=3" defer></script>
+  <script src="js/main.js?v=4" defer></script>
+  <script src="js/education.js?v=4" defer></script>
+  <script src="js/test.js?v=4" defer></script>
 </body>
 </html>
