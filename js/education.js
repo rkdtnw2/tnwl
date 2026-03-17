@@ -1,11 +1,13 @@
-let eduQueryApplied = false;
+function escapeAttr(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 function normalizeEduText(value) {
   return String(value ?? "").trim().toLowerCase();
-}
-
-function getEduSearchInput() {
-  return document.getElementById("edu-search-input");
 }
 
 function getEduCategories() {
@@ -13,7 +15,7 @@ function getEduCategories() {
 }
 
 function getEduKeyword() {
-  const input = getEduSearchInput();
+  const input = document.getElementById("edu-search-input");
   return normalizeEduText(input ? input.value : "");
 }
 
@@ -48,7 +50,7 @@ function updateEduCountBadge(data) {
 
 function updateEduSearchStatus(data) {
   const status = document.getElementById("edu-search-status");
-  const input = getEduSearchInput();
+  const input = document.getElementById("edu-search-input");
   if (!status || !input) return;
 
   const keyword = input.value.trim();
@@ -107,7 +109,7 @@ function renderEduCards(data) {
   area.innerHTML = data.map((item, index) => {
     const bgClass = `edu-bg-${(index % 6) + 1}`;
     const imageHtml = item.image
-      ? `<img class="edu-card-image" src="${escapeAttr(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+      ? `<img class="edu-card-image" src="${escapeAttr(item.image)}" alt="${escapeAttr(item.title)}" loading="lazy" />`
       : `<div class="edu-card-image" style="display:flex;align-items:center;justify-content:center;">이미지 없음</div>`;
 
     return `
@@ -131,35 +133,7 @@ function renderEduCards(data) {
   }).join("");
 }
 
-function applyEduQueryParams(force = false) {
-  if (eduQueryApplied && !force) return;
-
-  const params = new URLSearchParams(location.search);
-  const section = (params.get("section") || "").trim();
-  const keyword = (params.get("keyword") || "").trim();
-
-  if (section === "edu" && typeof openSection === "function") {
-    openSection("edu");
-  } else if (section === "test" && typeof openSection === "function") {
-    openSection("test");
-  }
-
-  if (section === "edu") {
-    const input = getEduSearchInput();
-    if (input && keyword) {
-      input.value = keyword;
-    }
-    eduQueryApplied = true;
-  }
-
-  if (section === "test") {
-    eduQueryApplied = true;
-  }
-}
-
 function renderEdu() {
-  applyEduQueryParams();
-
   const filtered = getEduFilteredData();
   renderEduTabs();
   renderEduCards(filtered);
@@ -177,7 +151,7 @@ function handleEduSearchInput() {
 }
 
 function clearEduSearch() {
-  const input = getEduSearchInput();
+  const input = document.getElementById("edu-search-input");
   if (input) input.value = "";
   currentEduCategory = "all";
   renderEdu();
@@ -218,7 +192,7 @@ function openEduModal(id) {
         <div class="edu-gallery-item">
           <img
             src="${escapeAttr(img)}"
-            alt="${escapeHtml(item.title)} ${index + 1}"
+            alt="${escapeAttr(item.title)} ${index + 1}"
             class="edu-gallery-img"
             loading="lazy"
             onclick="openEduLightboxById(${JSON.stringify(String(item.id))}, ${index})"
@@ -334,5 +308,4 @@ function bindEduEvents() {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEduEvents();
-  applyEduQueryParams(true);
 });
