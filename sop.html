@@ -817,6 +817,10 @@
       `;
     }
 
+    function searchableText(value) {
+      return String(value ?? "").toLowerCase();
+    }
+
     function buildAppData(rows) {
       const chapterMap = new Map();
 
@@ -1059,8 +1063,8 @@
         const chapter = appData[c];
 
         if (
-          (chapter.title || "").toLowerCase().includes(keyword) ||
-          (chapter.summary || "").toLowerCase().includes(keyword)
+          searchableText(chapter.title).includes(keyword) ||
+          searchableText(chapter.summary).includes(keyword)
         ) {
           results.push({
             type: "chapter",
@@ -1072,8 +1076,8 @@
           const topic = chapter.topics[t];
 
           if (
-            (topic.title || "").toLowerCase().includes(keyword) ||
-            (topic.summary || "").toLowerCase().includes(keyword)
+            searchableText(topic.title).includes(keyword) ||
+            searchableText(topic.summary).includes(keyword)
           ) {
             results.push({
               type: "topic",
@@ -1086,8 +1090,8 @@
             const slide = topic.slides[s];
 
             if (
-              (slide.title || "").toLowerCase().includes(keyword) ||
-              (slide.content || "").toLowerCase().includes(keyword)
+              searchableText(slide.title).includes(keyword) ||
+              searchableText(slide.content).includes(keyword)
             ) {
               results.push({
                 type: "slide",
