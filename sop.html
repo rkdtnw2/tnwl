@@ -688,6 +688,16 @@
         .trim();
     }
 
+    function normalizeKeywordForMatch(value) {
+      return String(value ?? "")
+        .replace(/\uFEFF/g, "")
+        .replace(/\u200B/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, "")
+        .trim()
+        .toLowerCase();
+    }
+
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -859,7 +869,7 @@
     }
 
     function goToTopicByKeyword(keyword) {
-      const key = normalizeText(keyword);
+      const key = normalizeKeywordForMatch(keyword);
       if (!key) return;
 
       for (let c = 0; c < appData.length; c++) {
@@ -867,7 +877,9 @@
 
         for (let t = 0; t < chapter.topics.length; t++) {
           const topic = chapter.topics[t];
-          if (searchableText(topic.title).includes(key)) {
+          const topicTitleKey = normalizeKeywordForMatch(topic.title);
+
+          if (topicTitleKey.includes(key)) {
             openChapter(c);
             openTopic(t);
             return;
