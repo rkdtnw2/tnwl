@@ -22,19 +22,33 @@
       padding: 28px 20px 60px;
     }
 
-    .home-btn {
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .home-btn,
+    .back-nav-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 20px;
       border: none;
-      background: #111827;
       color: #fff;
       border-radius: 12px;
       padding: 12px 16px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
+    }
+
+    .home-btn {
+      background: #111827;
+    }
+
+    .back-nav-btn {
+      background: #d8006c;
     }
 
     .top-bar {
@@ -249,15 +263,29 @@
       white-space: pre-line;
     }
 
-    .back-btn {
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .back-btn,
+    .mini-home-btn {
       border: none;
-      background: #111827;
       color: #fff;
       padding: 12px 18px;
       border-radius: 12px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
+    }
+
+    .back-btn {
+      background: #d8006c;
+    }
+
+    .mini-home-btn {
+      background: #111827;
     }
 
     .topic-list {
@@ -386,6 +414,32 @@
       white-space: pre-line;
     }
 
+    .tag-link-wrap {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff1f6;
+      color: #d8006c;
+      border: 1px solid #f5c2d8;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .tag-link:hover {
+      background: #ffe7f1;
+    }
+
     .image-box {
       background: #fff;
       border: 1px dashed #d1d5db;
@@ -494,12 +548,24 @@
       .search-reset-btn {
         width: 100%;
       }
+
+      .panel-actions {
+        width: 100%;
+      }
+
+      .back-btn,
+      .mini-home-btn {
+        flex: 1;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <button class="home-btn" onclick="location.href='index.html'">← 홈으로</button>
+    <div class="top-actions">
+      <button class="back-nav-btn" onclick="goBackSafe()">← 뒤로가기</button>
+      <button class="home-btn" onclick="location.href='index.html'">🏠 홈</button>
+    </div>
 
     <div class="top-bar">
       <div class="title-area">
@@ -540,7 +606,10 @@
             <h2 id="chapterViewTitle" class="panel-title">챕터</h2>
             <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
           </div>
-          <button class="back-btn" onclick="showMain()">목록으로</button>
+          <div class="panel-actions">
+            <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
+            <button class="mini-home-btn" onclick="location.href='index.html'">홈</button>
+          </div>
         </div>
         <div class="topic-list" id="topicList"></div>
       </div>
@@ -553,7 +622,10 @@
             <h2 id="topicViewTitle" class="panel-title">교육 주제</h2>
             <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 확인하세요.</p>
           </div>
-          <button class="back-btn" onclick="backToChapter()">주제 목록으로</button>
+          <div class="panel-actions">
+            <button class="back-btn" onclick="goBackSafe()">뒤로가기</button>
+            <button class="mini-home-btn" onclick="location.href='index.html'">홈</button>
+          </div>
         </div>
 
         <div class="slide-toolbar">
@@ -600,6 +672,18 @@
     const nextSlideBtn = document.getElementById("nextSlideBtn");
     const searchMsg = document.getElementById("searchMsg");
     const globalSearchInput = document.getElementById("globalSearchInput");
+
+    function goBackSafe() {
+      if (window.history.length > 1 && document.referrer) {
+        history.back();
+      } else if (topicView.classList.contains("active")) {
+        showView("chapter");
+      } else if (chapterView.classList.contains("active")) {
+        showView("main");
+      } else {
+        location.href = "index.html";
+      }
+    }
 
     function normalizeText(value) {
       return String(value ?? "")
@@ -732,6 +816,40 @@
       return parseCSV(csvText);
     }
 
+    function buildTagLinks(text) {
+      const raw = normalizeText(text);
+      if (!raw) return "";
+
+      const matches = raw.match(/#(상품자료|SOP|테스트):([^\s#]+)/g);
+      if (!matches) return "";
+
+      const unique = [...new Set(matches)];
+
+      return `
+        <div class="tag-link-wrap">
+          ${unique.map(tag => {
+            const cleaned = tag.replace(/^#/, "");
+            const [section, keyword] = cleaned.split(":");
+            const label = `#${section}:${keyword}`;
+
+            if (section === "상품자료") {
+              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            if (section === "테스트") {
+              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            if (section === "SOP") {
+              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            return "";
+          }).join("")}
+        </div>
+      `;
+    }
+
     function renderChapters() {
       if (!appData.length) {
         chapterList.innerHTML = `
@@ -806,6 +924,8 @@
 
               <label class="field-label">슬라이드 내용</label>
               <div class="slide-content-box">${escapeHtml(slide.content || "내용이 없습니다.")}</div>
+
+              ${buildTagLinks(slide.content)}
             </div>
 
             <div class="image-box">
@@ -1041,6 +1161,14 @@
         loadingView.style.display = "none";
         renderChapters();
         showMain();
+
+        const params = new URLSearchParams(location.search);
+        const keyword = normalizeText(params.get("keyword"));
+        if (keyword) {
+          globalSearchInput.value = keyword;
+          lastKeyword = "";
+          searchKeyword();
+        }
       } catch (error) {
         console.error(error);
         loadingView.className = "error-box";
