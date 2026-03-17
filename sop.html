@@ -174,6 +174,7 @@
       margin: 0 0 10px;
       line-height: 1.4;
       letter-spacing: -0.3px;
+      white-space: pre-line;
     }
 
     .chapter-summary {
@@ -245,6 +246,7 @@
       font-size: 30px;
       font-weight: 800;
       letter-spacing: -0.4px;
+      white-space: pre-line;
     }
 
     .panel-desc {
@@ -307,6 +309,7 @@
       font-weight: 800;
       line-height: 1.4;
       letter-spacing: -0.2px;
+      white-space: pre-line;
     }
 
     .topic-card p {
@@ -389,6 +392,7 @@
       font-family: 'Pretendard', sans-serif;
       background: #fff;
       outline: none;
+      white-space: pre-line;
     }
 
     .slide-title-box {
@@ -396,18 +400,16 @@
       font-size: 18px;
       font-weight: 700;
       line-height: 1.5;
-      white-space: pre-line;
     }
 
     .slide-content-box {
       min-height: 320px;
       font-size: 14px;
       line-height: 1.8;
-      white-space: pre-line;
     }
 
     .tag-link-wrap {
-      margin-top: 16px;
+      margin-top: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
@@ -595,6 +597,7 @@
         <div class="panel-top">
           <div>
             <h2 id="chapterViewTitle" class="panel-title">챕터</h2>
+            <div id="chapterViewTitleTags"></div>
             <p id="chapterViewDesc" class="panel-desc">챕터 안의 교육 주제를 선택하세요.</p>
           </div>
           <div class="panel-actions">
@@ -611,6 +614,7 @@
         <div class="panel-top">
           <div>
             <h2 id="topicViewTitle" class="panel-title">교육 주제</h2>
+            <div id="topicViewTitleTags"></div>
             <p id="topicViewDesc" class="panel-desc">슬라이드 내용을 확인하세요.</p>
           </div>
           <div class="panel-actions">
@@ -653,8 +657,10 @@
     const chapterList = document.getElementById("chapterList");
     const topicList = document.getElementById("topicList");
     const chapterViewTitle = document.getElementById("chapterViewTitle");
+    const chapterViewTitleTags = document.getElementById("chapterViewTitleTags");
     const chapterViewDesc = document.getElementById("chapterViewDesc");
     const topicViewTitle = document.getElementById("topicViewTitle");
+    const topicViewTitleTags = document.getElementById("topicViewTitleTags");
     const topicViewDesc = document.getElementById("topicViewDesc");
     const slidePages = document.getElementById("slidePages");
     const slideDots = document.getElementById("slideDots");
@@ -739,6 +745,78 @@
       return Number.isFinite(n) ? n : fallback;
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function escapeAttr(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function extractTags(text) {
+      const raw = String(text ?? "");
+      const regex = /#(상품자료|SOP|테스트)(?::|\s+)([^\n#]+)/g;
+      const found = [];
+      let match;
+
+      while ((match = regex.exec(raw)) !== null) {
+        const section = normalizeText(match[1]);
+        const keyword = normalizeText(match[2]);
+        if (!section || !keyword) continue;
+
+        const key = `${section}__${keyword}`;
+        if (!found.some(item => item.key === key)) {
+          found.push({ key, section, keyword });
+        }
+      }
+
+      return found;
+    }
+
+    function removeTagText(text) {
+      return String(text ?? "")
+        .replace(/#(상품자료|SOP|테스트)(?::|\s+)([^\n#]+)/g, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .replace(/[ \t]{2,}/g, " ")
+        .trim();
+    }
+
+    function buildTagLinks(text) {
+      const found = extractTags(text);
+      if (!found.length) return "";
+
+      return `
+        <div class="tag-link-wrap">
+          ${found.map(item => {
+            const label = `#${item.section} ${item.keyword}`;
+
+            if (item.section === "상품자료") {
+              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            if (item.section === "테스트") {
+              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            if (item.section === "SOP") {
+              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
+            }
+
+            return "";
+          }).join("")}
+        </div>
+      `;
+    }
+
     function buildAppData(rows) {
       const chapterMap = new Map();
 
@@ -809,50 +887,6 @@
       return parseCSV(csvText);
     }
 
-    function buildTagLinks(text) {
-      const raw = String(text ?? "");
-      if (!raw.trim()) return "";
-
-      const regex = /#(상품자료|SOP|테스트)(?::|\s+)([^\n#]+)/g;
-      const found = [];
-      let match;
-
-      while ((match = regex.exec(raw)) !== null) {
-        const section = normalizeText(match[1]);
-        const keyword = normalizeText(match[2]);
-        if (!section || !keyword) continue;
-
-        const key = `${section}__${keyword}`;
-        if (!found.some(item => item.key === key)) {
-          found.push({ key, section, keyword });
-        }
-      }
-
-      if (!found.length) return "";
-
-      return `
-        <div class="tag-link-wrap">
-          ${found.map(item => {
-            const label = `#${item.section} ${item.keyword}`;
-
-            if (item.section === "상품자료") {
-              return `<a class="tag-link" href="index.html?section=edu&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            if (item.section === "테스트") {
-              return `<a class="tag-link" href="index.html?section=test&keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            if (item.section === "SOP") {
-              return `<a class="tag-link" href="sop.html?keyword=${encodeURIComponent(item.keyword)}">${escapeHtml(label)}</a>`;
-            }
-
-            return "";
-          }).join("")}
-        </div>
-      `;
-    }
-
     function renderChapters() {
       if (!appData.length) {
         chapterList.innerHTML = `
@@ -867,11 +901,13 @@
       chapterList.innerHTML = appData.map((chapter, index) => `
         <div class="chapter-card" onclick="openChapter(${index})">
           <div class="chapter-thumb">
-            ${chapter.image ? `<img src="${escapeAttr(chapter.image)}" alt="${escapeHtml(chapter.title)}">` : ""}
+            ${chapter.image ? `<img src="${escapeAttr(chapter.image)}" alt="${escapeHtml(removeTagText(chapter.title) || chapter.title)}">` : ""}
           </div>
           <div class="chapter-body">
-            <h3 class="chapter-title">${escapeHtml(chapter.title)}</h3>
-            <div class="chapter-summary">${escapeHtml(chapter.summary || "챕터 설명이 없습니다.")}</div>
+            <h3 class="chapter-title">${escapeHtml(removeTagText(chapter.title) || "챕터 제목 없음")}</h3>
+            ${buildTagLinks(chapter.title)}
+            <div class="chapter-summary">${escapeHtml(removeTagText(chapter.summary || "챕터 설명이 없습니다."))}</div>
+            ${buildTagLinks(chapter.summary)}
             <div class="chapter-meta">
               <div class="chapter-info">
                 <span class="chapter-label">${escapeHtml(chapter.label)}</span>
@@ -888,13 +924,16 @@
       currentChapterIndex = index;
       const chapter = appData[index];
 
-      chapterViewTitle.textContent = chapter.title;
-      chapterViewDesc.textContent = chapter.summary || "챕터 안의 교육 주제를 선택하세요.";
+      chapterViewTitle.textContent = removeTagText(chapter.title) || chapter.title;
+      chapterViewTitleTags.innerHTML = buildTagLinks(chapter.title);
+      chapterViewDesc.textContent = removeTagText(chapter.summary || "챕터 안의 교육 주제를 선택하세요.");
 
       topicList.innerHTML = chapter.topics.map((topic, topicIndex) => `
         <div class="topic-card" onclick="openTopic(${topicIndex})">
-          <h3>${escapeHtml(topic.title)}</h3>
-          <p>${escapeHtml(topic.summary || "주제 설명이 없습니다.")}</p>
+          <h3>${escapeHtml(removeTagText(topic.title) || "주제 제목 없음")}</h3>
+          ${buildTagLinks(topic.title)}
+          <p>${escapeHtml(removeTagText(topic.summary || "주제 설명이 없습니다."))}</p>
+          ${buildTagLinks(topic.summary)}
         </div>
       `).join("");
 
@@ -908,8 +947,9 @@
       const chapter = appData[currentChapterIndex];
       const topic = chapter.topics[topicIndex];
 
-      topicViewTitle.textContent = topic.title;
-      topicViewDesc.textContent = topic.summary || "슬라이드 내용을 확인하세요.";
+      topicViewTitle.textContent = removeTagText(topic.title) || topic.title;
+      topicViewTitleTags.innerHTML = buildTagLinks(topic.title);
+      topicViewDesc.textContent = removeTagText(topic.summary || "슬라이드 내용을 확인하세요.");
 
       renderSlides();
       showView("topic");
@@ -923,18 +963,18 @@
           <div class="slide-layout">
             <div>
               <label class="field-label">슬라이드 제목</label>
-              <div class="slide-title-box">${escapeHtml(slide.title)}</div>
+              <div class="slide-title-box">${escapeHtml(removeTagText(slide.title) || "제목이 없습니다.")}</div>
+              ${buildTagLinks(slide.title)}
 
               <label class="field-label">슬라이드 내용</label>
-              <div class="slide-content-box">${escapeHtml(slide.content || "내용이 없습니다.")}</div>
-
+              <div class="slide-content-box">${escapeHtml(removeTagText(slide.content || "내용이 없습니다."))}</div>
               ${buildTagLinks(slide.content)}
             </div>
 
             <div class="image-box">
               <label class="field-label">이미지</label>
               <div class="preview">
-                ${slide.image ? `<img src="${escapeAttr(slide.image)}" alt="${escapeHtml(slide.title)}">` : "이미지가 없습니다"}
+                ${slide.image ? `<img src="${escapeAttr(slide.image)}" alt="${escapeHtml(removeTagText(slide.title) || slide.title)}">` : "이미지가 없습니다"}
               </div>
             </div>
           </div>
@@ -1064,11 +1104,11 @@
     }
 
     function getChapterName(index) {
-      return appData[index]?.title || "";
+      return removeTagText(appData[index]?.title || "");
     }
 
     function getTopicName(chapterIndex, topicIndex) {
-      return appData[chapterIndex]?.topics?.[topicIndex]?.title || "";
+      return removeTagText(appData[chapterIndex]?.topics?.[topicIndex]?.title || "");
     }
 
     function searchKeyword() {
@@ -1133,23 +1173,6 @@
 
     function clearSearchMsg() {
       searchMsg.innerHTML = "";
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function escapeAttr(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
     }
 
     async function initSopPage() {
