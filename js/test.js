@@ -150,6 +150,16 @@ function checkManagerPassword() {
   }
 }
 
+function toggleAnswerDetail(index) {
+  const detailRow = document.getElementById(`detail-row-${index}`);
+  const btn = document.getElementById(`detail-btn-${index}`);
+  if (!detailRow || !btn) return;
+
+  const isOpen = detailRow.style.display === "table-row";
+  detailRow.style.display = isOpen ? "none" : "table-row";
+  btn.textContent = isOpen ? "상세보기" : "닫기";
+}
+
 function loadResults() {
   const records = JSON.parse(localStorage.getItem("sopTestResults_ureem")) || [];
   const tbody = document.getElementById("result-body");
@@ -174,7 +184,7 @@ function loadResults() {
 
   let html = "";
 
-  records.slice().reverse().forEach((record) => {
+  records.slice().reverse().forEach((record, index) => {
     let wrongNumbersText = `<span style="color:#16a34a; font-weight:800;">전부 정답</span>`;
 
     if (Array.isArray(record.answers) && record.answers.length > 0) {
@@ -208,15 +218,21 @@ function loadResults() {
         <td style="color:${record.score >= 80 ? "#e30678" : "#ef4444"}; font-weight:900; vertical-align:top;">${record.score}점</td>
         <td style="vertical-align:top; font-weight:700; color:#334155;">${wrongNumbersText}</td>
         <td style="color:#64748b; font-size:0.84rem; vertical-align:top;">${escapeHtml(record.date)}</td>
-        <td style="vertical-align:top; min-width:240px;">
-          <details style="width:100%;">
-            <summary style="list-style:none; cursor:pointer; display:inline-block; padding:8px 12px; border-radius:8px; background:#e30678; color:#fff; font-weight:800;">
-              상세보기
-            </summary>
-            <div style="margin-top:10px;">
-              ${detailItems}
-            </div>
-          </details>
+        <td style="vertical-align:top;">
+          <button
+            type="button"
+            class="detail-toggle-btn"
+            data-index="${index}"
+            id="detail-btn-${index}"
+            style="padding:8px 12px; border:none; border-radius:8px; background:#e30678; color:#fff; font-weight:800; cursor:pointer;"
+          >
+            상세보기
+          </button>
+        </td>
+      </tr>
+      <tr id="detail-row-${index}" style="display:none;">
+        <td colspan="5" style="padding:12px; background:#fff8fc;">
+          ${detailItems}
         </td>
       </tr>
     `;
@@ -224,6 +240,14 @@ function loadResults() {
 
   tbody.innerHTML = html;
 }
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".detail-toggle-btn");
+  if (!btn) return;
+
+  const index = btn.dataset.index;
+  toggleAnswerDetail(index);
+});
 
 function clearData() {
   if (confirm("정말 모든 시험 기록을 삭제하시겠습니까? (복구 불가)")) {
