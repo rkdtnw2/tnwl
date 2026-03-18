@@ -62,16 +62,6 @@ function normalizeText(value) {
     .trim();
 }
 
-function ensureAbsoluteUrl(url) {
-  const raw = normalizeText(url);
-  if (!raw) return "";
-
-  if (/^https?:\/\//i.test(raw)) return raw;
-  if (/^\/\//.test(raw)) return `https:${raw}`;
-
-  return raw;
-}
-
 function extractGoogleDriveFileId(url) {
   const raw = normalizeText(url);
   if (!raw) return "";
@@ -93,7 +83,7 @@ function extractGoogleDriveFileId(url) {
 }
 
 function convertImageUrl(url) {
-  const raw = ensureAbsoluteUrl(url);
+  const raw = normalizeText(url);
   if (!raw) return "";
 
   if (raw.includes("drive.google.com")) {
@@ -275,10 +265,10 @@ function collectEduImages(row) {
     row.이미지4,
     row.이미지5,
     row.이미지6,
-    row.img,
-    row.대표이미지,
     row.mainImage,
-    row.mainimage
+    row.mainimage,
+    row.대표이미지,
+    row.img
   ];
 
   const converted = rawImages
@@ -369,6 +359,7 @@ function setLoadingState() {
   const testArea = document.getElementById("test-question-area");
 
   if (eduTabs) eduTabs.innerHTML = "";
+
   if (eduArea) {
     eduArea.innerHTML = `
       <div class="loading-state">
