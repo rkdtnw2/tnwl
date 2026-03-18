@@ -28,6 +28,7 @@ let sopData = [];
 let eduData = [];
 let testData = [];
 let dynamicTestAnswerKey = {};
+let currentEduCategory = "all";
 
 let currentLightboxImages = [];
 let currentLightboxIndex = 0;
