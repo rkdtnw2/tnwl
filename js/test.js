@@ -182,6 +182,8 @@ function loadResults() {
     return;
   }
 
+  let html = "";
+
   records.slice().reverse().forEach((record, index) => {
     let wrongNumbersText = `<span style="color:#16a34a; font-weight:800;">전부 정답</span>`;
 
@@ -210,7 +212,7 @@ function loadResults() {
         `).join("")
       : `<div style="color:#94a3b8;">상세 기록이 없습니다.</div>`;
 
-    tbody.innerHTML += `
+    html += `
       <tr>
         <td style="font-weight:800; vertical-align:top;">${escapeHtml(record.name)}</td>
         <td style="color:${record.score >= 80 ? "#e30678" : "#ef4444"}; font-weight:900; vertical-align:top;">${record.score}점</td>
@@ -218,8 +220,10 @@ function loadResults() {
         <td style="color:#64748b; font-size:0.84rem; vertical-align:top;">${escapeHtml(record.date)}</td>
         <td style="vertical-align:top;">
           <button
+            type="button"
+            class="detail-toggle-btn"
+            data-index="${index}"
             id="detail-btn-${index}"
-            onclick="toggleAnswerDetail(${index})"
             style="padding:8px 12px; border:none; border-radius:8px; background:#e30678; color:#fff; font-weight:800; cursor:pointer;"
           >
             상세보기
@@ -233,7 +237,17 @@ function loadResults() {
       </tr>
     `;
   });
+
+  tbody.innerHTML = html;
 }
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".detail-toggle-btn");
+  if (!btn) return;
+
+  const index = btn.dataset.index;
+  toggleAnswerDetail(index);
+});
 
 function clearData() {
   if (confirm("정말 모든 시험 기록을 삭제하시겠습니까? (복구 불가)")) {
