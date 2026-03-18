@@ -28,7 +28,6 @@ let sopData = [];
 let eduData = [];
 let testData = [];
 let dynamicTestAnswerKey = {};
-let currentEduCategory = "all";
 
 let currentLightboxImages = [];
 let currentLightboxIndex = 0;
@@ -63,17 +62,49 @@ function normalizeText(value) {
     .trim();
 }
 
-function convertImageUrl(url) {
+function ensureAbsoluteUrl(url) {
   const raw = normalizeText(url);
   if (!raw) return "";
 
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^\/\//.test(raw)) return `https:${raw}`;
+
+  return raw;
+}
+
+function extractGoogleDriveFileId(url) {
+  const raw = normalizeText(url);
+  if (!raw) return "";
+
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/thumbnail\?id=([a-zA-Z0-9_-]+)/,
+    /\/uc\?(?:.*&)?id=([a-zA-Z0-9_-]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = raw.match(pattern);
+    if (match && match[1]) return match[1];
+  }
+
+  return "";
+}
+
+function convertImageUrl(url) {
+  const raw = ensureAbsoluteUrl(url);
+  if (!raw) return "";
+
   if (raw.includes("drive.google.com")) {
-    const fileMatch = raw.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    const openMatch = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    const fileId = fileMatch ? fileMatch[1] : (openMatch ? openMatch[1] : "");
+    const fileId = extractGoogleDriveFileId(raw);
     if (fileId) {
       return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
     }
+  }
+
+  if (raw.includes("googleusercontent.com")) {
+    return raw;
   }
 
   if (raw.includes("imgur.com")) {
@@ -243,7 +274,11 @@ function collectEduImages(row) {
     row.이미지3,
     row.이미지4,
     row.이미지5,
-    row.이미지6
+    row.이미지6,
+    row.img,
+    row.대표이미지,
+    row.mainImage,
+    row.mainimage
   ];
 
   const converted = rawImages
@@ -256,18 +291,37 @@ function collectEduImages(row) {
 function normalizeEduRow(row, index) {
   const images = collectEduImages(row);
 
+  const title =
+    safeText(row.title) ||
+    safeText(row.Title) ||
+    safeText(row.제목) ||
+    safeText(row.name) ||
+    safeText(row.Name) ||
+    safeText(row.상품명) ||
+    "제목 없음";
+
+  const desc =
+    safeText(row.desc) ||
+    safeText(row.description) ||
+    safeText(row.Description) ||
+    safeText(row.설명) ||
+    safeText(row.summary) ||
+    safeText(row.Summary) ||
+    "설명이 없습니다.";
+
   return {
     id: safeText(row.id || row.ID, String(index + 1)),
-    category: safeText(row.category || row.카테고리, "기타"),
-    title: safeText(row.title || row.제목, "제목 없음"),
-    desc: safeText(row.desc || row.description || row.설명, "설명이 없습니다."),
+    category: safeText(row.category || row.Category || row.카테고리, "기타"),
+    title,
+    desc,
     images,
     image: images[0] || "",
-    icon: safeText(row.icon || row.아이콘, "📘"),
-    meta: safeText(row.meta || row.메타 || row.분류, ""),
+    icon: safeText(row.icon || row.Icon || row.아이콘, "📘"),
+    meta: safeText(row.meta || row.Meta || row.메타 || row.분류, ""),
     points: splitEduPoints(row),
     script: safeText(
       row.script ||
+      row.Script ||
       row.멘트 ||
       row["추천멘트"] ||
       row["추천 멘트"],
@@ -311,12 +365,12 @@ async function fetchEduSheetData() {
 
 function setLoadingState() {
   const eduTabs = document.getElementById("eduTabs");
-  const eduContentArea = document.getElementById("edu-content-area");
-  const testQuestionArea = document.getElementById("test-question-area");
+  const eduArea = document.getElementById("edu-content-area");
+  const testArea = document.getElementById("test-question-area");
 
   if (eduTabs) eduTabs.innerHTML = "";
-  if (eduContentArea) {
-    eduContentArea.innerHTML = `
+  if (eduArea) {
+    eduArea.innerHTML = `
       <div class="loading-state">
         <strong>상품자료를 불러오는 중입니다.</strong>
         <div>잠시만 기다려 주세요.</div>
@@ -324,8 +378,8 @@ function setLoadingState() {
     `;
   }
 
-  if (testQuestionArea) {
-    testQuestionArea.innerHTML = `
+  if (testArea) {
+    testArea.innerHTML = `
       <div class="loading-state">
         <strong>테스트 문항을 불러오는 중입니다.</strong>
         <div>잠시만 기다려 주세요.</div>
@@ -336,12 +390,13 @@ function setLoadingState() {
 
 function setErrorState(message) {
   const eduTabs = document.getElementById("eduTabs");
-  const eduContentArea = document.getElementById("edu-content-area");
-  const testQuestionArea = document.getElementById("test-question-area");
+  const eduArea = document.getElementById("edu-content-area");
+  const testArea = document.getElementById("test-question-area");
 
   if (eduTabs) eduTabs.innerHTML = "";
-  if (eduContentArea) {
-    eduContentArea.innerHTML = `
+
+  if (eduArea) {
+    eduArea.innerHTML = `
       <div class="error-state">
         <strong>상품자료 로드 실패</strong>
         <div>${escapeHtml(message)}</div>
@@ -349,8 +404,8 @@ function setErrorState(message) {
     `;
   }
 
-  if (testQuestionArea) {
-    testQuestionArea.innerHTML = `
+  if (testArea) {
+    testArea.innerHTML = `
       <div class="error-state">
         <strong>테스트 로드 실패</strong>
         <div>${escapeHtml(message)}</div>
@@ -381,8 +436,13 @@ async function initGoogleSheetContent() {
       eduData = FALLBACK_EDU_DATA;
     }
 
-    if (typeof renderEdu === "function") renderEdu();
-    if (typeof renderTest === "function") renderTest(testData);
+    if (typeof renderEdu === "function") {
+      renderEdu();
+    }
+
+    if (typeof renderTest === "function") {
+      renderTest(testData);
+    }
   } catch (error) {
     console.error(error);
     setErrorState(error.message || "알 수 없는 오류가 발생했습니다.");
