@@ -3,258 +3,1409 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>유림텔레콤 현장 대응 SOP 매뉴얼</title>
-  <link rel="stylesheet" href="css/style.css?v=4" />
+  <title>유림 텔레콤 현장대응 SOP</title>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+    :root{
+      --bg:#0b1020;
+      --text:#f8fbff;
+      --muted:#b7c3da;
+      --line:rgba(255,255,255,.08);
+      --primary:#ff4f9f;
+      --primary-2:#8a5cff;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+      --max:1280px;
+      --header-height:96px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Pretendard',system-ui,sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,79,159,.18), transparent 26%),
+        radial-gradient(circle at 80% 20%, rgba(138,92,255,.18), transparent 26%),
+        radial-gradient(circle at 70% 80%, rgba(79,216,255,.14), transparent 24%),
+        linear-gradient(180deg, #0a0f1f 0%, #0d1326 100%);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+    button,input{font-family:inherit}
+
+    .container{
+      width:min(var(--max), calc(100% - 32px));
+      margin:0 auto;
+    }
+
+    .topbar{
+      position:fixed;
+      top:0; left:0; right:0;
+      z-index:1000;
+      backdrop-filter: blur(16px);
+      background:rgba(10,15,31,.72);
+      border-bottom:1px solid var(--line);
+      box-shadow:0 10px 40px rgba(0,0,0,.2);
+    }
+
+    .topbar-inner{
+      width:min(var(--max), calc(100% - 32px));
+      margin:0 auto;
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:12px 0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+      cursor:pointer;
+    }
+
+    .brand-logo{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      background:linear-gradient(135deg, rgba(255,79,159,.95), rgba(138,92,255,.95));
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      border:1px solid rgba(255,255,255,.16);
+      flex:0 0 auto;
+      box-shadow:0 10px 30px rgba(255,79,159,.25);
+    }
+
+    .brand-text{min-width:0}
+    .brand-title{
+      font-size:1rem;
+      font-weight:800;
+      line-height:1.3;
+      word-break:keep-all;
+    }
+    .brand-sub{
+      margin-top:3px;
+      font-size:.82rem;
+      color:var(--muted);
+      line-height:1.35;
+      word-break:keep-all;
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .nav-btn{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:12px 18px;
+      border-radius:999px;
+      font-size:.95rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:.24s ease;
+    }
+
+    .nav-btn:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,.08);
+    }
+
+    .nav-btn.active{
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      border-color:transparent;
+      box-shadow:0 12px 26px rgba(255,79,159,.22);
+    }
+
+    main{
+      padding-top:calc(var(--header-height) + 24px);
+      padding-bottom:60px;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:36px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        linear-gradient(135deg, rgba(255,79,159,.12), rgba(138,92,255,.08) 45%, rgba(79,216,255,.08));
+      box-shadow:var(--shadow);
+      padding:48px 36px;
+      min-height:360px;
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:28px;
+      align-items:center;
+    }
+
+    .hero-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      color:#fff;
+      font-size:.9rem;
+      font-weight:700;
+      margin-bottom:18px;
+    }
+
+    .hero-title{
+      margin:0;
+      font-size:clamp(2rem, 9vw, 5.2rem);
+      line-height:1.15;
+      letter-spacing:-0.04em;
+      font-weight:900;
+      max-width:100%;
+      word-break:keep-all;
+    }
+
+    .hero-title .accent{
+      background:linear-gradient(135deg, #fff, #ffd1e5 40%, #c7d6ff 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .hero-panel{display:grid;gap:16px}
+    .hero-shortcuts{display:grid;gap:16px}
+
+    .shortcut-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:22px;
+      border-radius:24px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+        linear-gradient(135deg, rgba(255,79,159,.12), rgba(138,92,255,.10));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      transition:.25s ease;
+    }
+
+    .shortcut-card:hover{transform:translateY(-4px)}
+
+    .shortcut-left{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .shortcut-icon{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      font-size:1.55rem;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .shortcut-title{
+      font-size:1.12rem;
+      font-weight:900;
+      margin-bottom:4px;
+      word-break:keep-all;
+    }
+
+    .shortcut-desc{
+      color:var(--muted);
+      font-size:.95rem;
+      line-height:1.5;
+      word-break:keep-all;
+    }
+
+    .shortcut-arrow{
+      font-size:1.3rem;
+      font-weight:900;
+      color:#fff;
+      flex:0 0 auto;
+    }
+
+    .section{margin-top:28px}
+
+    .section-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:18px;
+    }
+
+    .section-title{
+      margin:0;
+      font-size:1.5rem;
+      font-weight:900;
+      letter-spacing:-0.03em;
+    }
+
+    .section-desc{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:.98rem;
+      word-break:keep-all;
+    }
+
+    .badge{
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color:#fff;
+      font-size:.86rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:30px;
+      padding:24px;
+      box-shadow:var(--shadow);
+    }
+
+    .hidden-view{display:none !important}
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    .search-box{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:12px 14px;
+      min-width:min(100%, 420px);
+    }
+
+    .search-box input{
+      background:transparent;
+      border:none;
+      outline:none;
+      color:white;
+      width:100%;
+      font-size:.98rem;
+    }
+
+    .search-result-info{
+      margin:-6px 0 16px;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.5;
+    }
+
+    .sop-layout{
+      display:grid;
+      grid-template-columns:280px minmax(0,1fr);
+      gap:18px;
+    }
+
+    .sidebar{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:18px;
+      height:fit-content;
+      position:sticky;
+      top:calc(var(--header-height) + 10px);
+    }
+
+    .sidebar h4{
+      margin:0 0 14px;
+      font-size:1rem;
+    }
+
+    .chapter-list,.topic-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .chapter-btn,.topic-btn{
+      border:none;
+      text-align:left;
+      cursor:pointer;
+      border-radius:14px;
+      padding:12px 14px;
+      color:white;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      transition:.22s ease;
+      font-size:.95rem;
+      line-height:1.45;
+    }
+
+    .chapter-btn.active,.topic-btn.active{
+      background:linear-gradient(135deg, rgba(255,79,159,.18), rgba(138,92,255,.18));
+      border-color:rgba(255,255,255,.16);
+    }
+
+    .topics-wrap{
+      margin-top:18px;
+      padding-top:18px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    .slides{display:grid;gap:16px}
+
+    .slide-card{
+      overflow:hidden;
+      border-radius:24px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .slide-top{padding:22px 22px 10px}
+
+    .slide-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .chip{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      color:#dfe8ff;
+      font-size:.78rem;
+      font-weight:700;
+    }
+
+    .slide-title{
+      margin:0 0 10px;
+      font-size:1.18rem;
+      font-weight:900;
+    }
+
+    .slide-summary,.slide-detail{
+      color:var(--muted);
+      line-height:1.8;
+      margin:0;
+      white-space:pre-line;
+      word-break:keep-all;
+    }
+
+    .slide-detail{
+      margin-top:14px;
+      padding:16px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .tag-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .tag-link{
+      cursor:pointer;
+      border:none;
+      border-radius:999px;
+      padding:8px 12px;
+      background:rgba(79,216,255,.10);
+      color:#dff9ff;
+      border:1px solid rgba(79,216,255,.18);
+      font-weight:700;
+      font-size:.82rem;
+    }
+
+    .gallery{
+      padding:0 22px 22px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+    }
+
+    .gallery img{
+      width:100%;
+      height:220px;
+      object-fit:contain;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#0e1323;
+      cursor:pointer;
+      padding:8px;
+    }
+
+    .video-wrap{padding:0 22px 22px}
+    .video-frame{
+      width:100%;
+      aspect-ratio:16 / 9;
+      border:none;
+      border-radius:18px;
+      background:#000;
+    }
+
+    .video-native{
+      width:100%;
+      border-radius:18px;
+      background:#000;
+    }
+
+    .edu-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:18px;
+    }
+
+    .edu-card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .edu-thumb{
+      width:100%;
+      height:240px;
+      object-fit:contain;
+      background:#0e1323;
+      padding:10px;
+    }
+
+    .edu-body{padding:18px}
+
+    .edu-cat{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:800;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      margin-bottom:10px;
+    }
+
+    .edu-title{
+      margin:0 0 10px;
+      font-size:1.1rem;
+      font-weight:900;
+    }
+
+    .edu-desc{
+      margin:0;
+      color:var(--muted);
+      line-height:1.65;
+      white-space:pre-line;
+      word-break:keep-all;
+    }
+
+    .point-list{
+      margin:14px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:8px;
+    }
+
+    .point-list li{
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+      color:#e9f0ff;
+      font-size:.92rem;
+      line-height:1.55;
+    }
+
+    .test-box{display:grid;gap:16px}
+
+    .question{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:20px;
+    }
+
+    .question h4{
+      margin:0 0 14px;
+      font-size:1.05rem;
+      line-height:1.6;
+    }
+
+    .options{display:grid;gap:10px}
+
+    .option{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+      cursor:pointer;
+    }
+
+    .submit-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .cta{
+      border:none;
+      padding:14px 18px;
+      border-radius:16px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .cta.primary{
+      color:white;
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .cta.secondary{
+      color:white;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .result-box{
+      margin-top:18px;
+      padding:20px;
+      border-radius:22px;
+      background:linear-gradient(135deg, rgba(255,79,159,.10), rgba(138,92,255,.10));
+      border:1px solid rgba(255,255,255,.10);
+      display:none;
+    }
+
+    .result-title{
+      margin:0 0 8px;
+      font-size:1.25rem;
+      font-weight:900;
+    }
+
+    .result-desc{
+      margin:0;
+      color:#edf2ff;
+      line-height:1.7;
+      white-space:pre-line;
+    }
+
+    .empty{
+      padding:26px;
+      border-radius:22px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(255,255,255,.04);
+      border:1px dashed rgba(255,255,255,.12);
+    }
+
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.84);
+      z-index:2000;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .lightbox.show{display:flex}
+
+    .lightbox-inner{
+      position:relative;
+      max-width:min(1200px, 96vw);
+      max-height:90vh;
+    }
+
+    .lightbox img{
+      max-width:100%;
+      max-height:90vh;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .lightbox-close{
+      position:absolute;
+      top:-12px;
+      right:-12px;
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      font-size:1.2rem;
+      font-weight:900;
+      background:white;
+      color:#111;
+    }
+
+    .footer{
+      margin-top:28px;
+      text-align:center;
+      color:#9aa9c6;
+      font-size:.9rem;
+      padding:18px 0 4px;
+    }
+
+    @media (max-width:1024px){
+      :root{ --header-height:110px; }
+      .hero{
+        grid-template-columns:1fr;
+        min-height:auto;
+        padding:36px 28px;
+      }
+      .edu-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+      .sop-layout{grid-template-columns:1fr}
+      .sidebar{position:relative;top:auto}
+    }
+
+    @media (max-width:720px){
+      :root{ --header-height:190px; }
+
+      .topbar-inner{
+        min-height:auto;
+        padding:14px 0 16px;
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .brand,.brand-text{width:100%}
+
+      .nav{
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+      }
+
+      .nav-btn{
+        width:100%;
+        text-align:center;
+        padding:12px 14px;
+      }
+
+      main{padding-top:calc(var(--header-height) + 18px)}
+
+      .hero{
+        padding:30px 22px;
+        border-radius:28px;
+        gap:22px;
+      }
+
+      .hero-title{
+        font-size:clamp(1.8rem, 8vw, 2.8rem);
+        line-height:1.2;
+      }
+
+      .shortcut-card{
+        padding:16px;
+        border-radius:18px;
+      }
+
+      .shortcut-icon{
+        width:48px;
+        height:48px;
+        font-size:1.2rem;
+      }
+
+      .shortcut-title{font-size:1rem}
+      .shortcut-desc{font-size:.86rem;line-height:1.4}
+
+      .section-head{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .search-box{min-width:100%}
+      .edu-grid{grid-template-columns:1fr}
+      .gallery{grid-template-columns:1fr}
+      .gallery img{height:200px}
+      .edu-thumb{height:220px}
+      .panel{padding:20px;border-radius:24px}
+      .slide-top{padding:18px 18px 8px}
+      .gallery,.video-wrap{padding:0 18px 18px}
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="header-left">
-      <span class="header-logo">유림텔레콤</span>
-    </div>
-    <div class="header-center">
-      <h2 class="main-title">현장 대응 SOP</h2>
-      <p class="sub-title">신입 플래너 교육용</p>
-    </div>
-    <div class="header-right"></div>
-  </header>
-
-  <div class="container">
-    <section id="home" class="home-screen active">
-      <div class="home-wrap">
-        <div class="home-card">
-          <h1 class="home-title">유림텔레콤 현장 대응 SOP</h1>
-          <p class="home-desc">원하시는 메뉴를 선택해 주세요.</p>
-
-          <div class="home-menu-grid">
-            <button class="home-menu-btn" onclick="location.href='sop.html'">
-              <span class="home-menu-icon">📖</span>
-              <span class="home-menu-title">SOP 상황별 매뉴얼</span>
-            </button>
-
-            <button class="home-menu-btn" onclick="openSection('edu')">
-              <span class="home-menu-icon">📚</span>
-              <span class="home-menu-title">상품자료</span>
-            </button>
-
-            <button class="home-menu-btn" onclick="openSection('test')">
-              <span class="home-menu-icon">📝</span>
-              <span class="home-menu-title">테스트</span>
-            </button>
-          </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" onclick="setView('home')">
+        <div class="brand-logo">YT</div>
+        <div class="brand-text">
+          <div class="brand-title">유림 텔레콤 현장대응 SOP</div>
+          <div class="brand-sub">신입 교육 · SOP 매뉴얼 · 상품자료 · 테스트</div>
         </div>
       </div>
-    </section>
 
-    <div id="top-bar" class="top-bar">
-      <button class="tab-btn" onclick="goHome()">🏠 홈</button>
-      <button class="tab-btn" onclick="location.href='sop.html'">📖 SOP 매뉴얼</button>
-      <button class="tab-btn" id="tab-edu" onclick="switchTab('edu', event)">📚 상품자료</button>
-      <button class="tab-btn" id="tab-test" onclick="switchTab('test', event)">📝 테스트</button>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="home">홈</button>
+        <button class="nav-btn" data-view="sop">SOP 매뉴얼</button>
+        <button class="nav-btn" data-view="edu">상품자료</button>
+        <button class="nav-btn" data-view="test">테스트</button>
+      </nav>
     </div>
+  </header>
 
-    <section id="edu" class="section-content">
-      <div class="section-shell">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <h3>📚 상품자료</h3>
-            <p>사진 클릭 후 길게 누르면 이미지 저장 가능합니다.</p>
-          </div>
-          <div class="data-badge" id="edu-count-badge">로딩 중...</div>
+  <main class="container">
+    <section id="home-view" class="view-section">
+      <div class="hero">
+        <div>
+          <div class="hero-badge" id="home-badge">✨ 실전형 신입 교육 포털</div>
+          <h1 class="hero-title">
+            <span class="accent" id="home-title">유림 텔레콤 현장대응 SOP</span>
+          </h1>
         </div>
 
-        <div class="edu-search-wrap">
-          <input
-            type="text"
-            id="edu-search-input"
-            class="edu-search-input"
-            placeholder="예: 아이폰, 결합, 인터넷, 멤버십"
-            oninput="handleEduSearchInput(event)"
-          />
-          <button
-            type="button"
-            class="edu-search-clear"
-            onclick="clearEduSearch()"
-          >
-            초기화
-          </button>
-        </div>
+        <div class="hero-panel">
+          <div class="hero-shortcuts">
+            <div class="shortcut-card" onclick="setView('sop')">
+              <div class="shortcut-left">
+                <div class="shortcut-icon">📘</div>
+                <div>
+                  <div class="shortcut-title" id="home-shortcut1-title">SOP 바로가기</div>
+                  <div class="shortcut-desc" id="home-shortcut1-desc">상황별 응대 매뉴얼을 바로 확인합니다.</div>
+                </div>
+              </div>
+              <div class="shortcut-arrow">→</div>
+            </div>
 
-        <div id="edu-search-status" class="edu-search-status"></div>
+            <div class="shortcut-card" onclick="setView('edu')">
+              <div class="shortcut-left">
+                <div class="shortcut-icon">🧾</div>
+                <div>
+                  <div class="shortcut-title" id="home-shortcut2-title">상품자료 보기</div>
+                  <div class="shortcut-desc" id="home-shortcut2-desc">주요 상품과 설명 포인트를 빠르게 확인합니다.</div>
+                </div>
+              </div>
+              <div class="shortcut-arrow">→</div>
+            </div>
 
-        <div class="edu-section-wrap">
-          <div class="edu-toolbar" id="eduTabs"></div>
-          <div id="edu-content-area" class="edu-grid-new">
-            <div class="loading-state">
-              <strong>상품자료를 불러오는 중입니다.</strong>
-              <div>구글시트 데이터를 확인하고 있어요.</div>
+            <div class="shortcut-card" onclick="setView('test')">
+              <div class="shortcut-left">
+                <div class="shortcut-icon">📝</div>
+                <div>
+                  <div class="shortcut-title" id="home-shortcut3-title">테스트 시작</div>
+                  <div class="shortcut-desc" id="home-shortcut3-desc">교육 후 이해도 점검을 바로 진행합니다.</div>
+                </div>
+              </div>
+              <div class="shortcut-arrow">→</div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="test" class="section-content">
-      <div class="section-shell">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <h3>📝 테스트</h3>
-            <p>구글시트에서 문제를 관리하고, 결과는 브라우저에 저장됩니다.</p>
+    <section id="sop-view" class="view-section hidden-view section">
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">SOP 매뉴얼</h2>
+            <p class="section-desc">상황별 응대 흐름, 이미지, 동영상을 확인할 수 있습니다.</p>
           </div>
-          <div class="data-badge" id="test-count-badge">로딩 중...</div>
+          <div class="badge" id="sop-count-badge">0개 항목</div>
         </div>
 
-        <div class="role-select" id="role-selector">
-          <button class="role-btn active" id="btn-planner" onclick="switchRole('planner')">👨‍💼 신입 플래너용</button>
-          <button class="role-btn" id="btn-manager" onclick="switchRole('manager')">👑 점장/관리자용</button>
-        </div>
-
-        <div id="planner-intro" class="test-box">
-          <h3 style="color: var(--primary); text-align: center; margin-top: 0;">📝 실전 세일즈 모의고사</h3>
-          <p class="warning-text">
-            ⚠️ 주의: [시험 시작하기]를 누르면 상단 메뉴가 숨겨집니다.<br>
-            새로고침 시 입력 상태가 초기화됩니다.
-          </p>
-          <input type="text" id="planner-name-intro" placeholder="응시자 이름 입력 (예: 홍길동)" />
-          <button class="submit-btn" onclick="startExam()">시험 시작하기</button>
-        </div>
-
-        <div id="planner-exam" class="test-box" style="display:none;">
-          <h3 style="color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0;">
-            응시자: <span id="display-name" style="color:#1e293b;"></span>
-          </h3>
-          <input type="hidden" id="planner-name" />
-          <div id="test-question-area"></div>
-          <button class="submit-btn" onclick="submitDynamicTest()">답안 최종 제출하기</button>
-        </div>
-
-        <div id="manager-view" class="test-box" style="display:none;">
-          <div id="login-area">
-            <h3 style="display:flex; align-items:center; gap:10px; margin-top:0; margin-bottom:20px;">🔒 관리자 로그인</h3>
-            <input type="password" id="manager-pwd" placeholder="관리자 비밀번호 입력" />
-            <button class="submit-btn" onclick="checkManagerPassword()">로그인</button>
+        <div class="toolbar">
+          <div class="search-box">
+            <span>🔎</span>
+            <input type="text" id="sop-search" placeholder="챕터 / 주제 / 내용 / 태그 검색" />
           </div>
+          <button class="cta secondary" onclick="resetSopFilter()">전체 보기</button>
+        </div>
 
-          <div id="dashboard-area" style="display:none;">
-            <h3 style="color: var(--primary); margin-top:0;">📊 플래너 테스트 결과 현황</h3>
-            <table id="result-table">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>점수</th>
-                  <th>응시 시간</th>
-                </tr>
-              </thead>
-              <tbody id="result-body"></tbody>
-            </table>
-            <button onclick="clearData()" style="padding: 12px 20px; background: #cbd5e1; border:none; border-radius:12px; cursor:pointer; font-weight: 800; margin-top: 20px; width: 100%;">시험 기록 초기화</button>
+        <div id="search-result-info" class="search-result-info"></div>
+
+        <div class="sop-layout">
+          <aside class="sidebar">
+            <h4>챕터</h4>
+            <div id="chapter-list" class="chapter-list"></div>
+
+            <div class="topics-wrap">
+              <h4 style="margin:0 0 14px;">주제</h4>
+              <div id="topic-list" class="topic-list"></div>
+            </div>
+          </aside>
+
+          <div>
+            <div id="sop-slide-area" class="slides"></div>
           </div>
         </div>
       </div>
     </section>
-  </div>
 
-  <div class="edu-modal" id="eduModal">
-    <div class="edu-modal-backdrop" id="eduModalBackdrop"></div>
-    <div class="edu-modal-content">
-      <button class="edu-modal-close" id="eduModalClose">×</button>
-      <div class="edu-modal-top">
-        <span class="edu-modal-badge" id="modalCategory">카테고리</span>
-        <h3 id="modalTitle">제목</h3>
-        <p id="modalDesc">설명</p>
-        <div id="modalGallery" class="edu-gallery"></div>
-      </div>
-      <div class="edu-modal-body">
-        <div class="edu-modal-box">
-          <h4>핵심 포인트</h4>
-          <ul id="modalPoints"></ul>
+    <section id="edu-view" class="view-section hidden-view section">
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">상품자료</h2>
+            <p class="section-desc">관리자 페이지에서 입력한 상품자료가 표시됩니다.</p>
+          </div>
+          <div class="badge" id="edu-count-badge">0개 항목</div>
         </div>
-        <div class="edu-modal-box">
-          <h4>추천 멘트</h4>
-          <div class="edu-script" id="modalScript"></div>
-        </div>
+        <div id="edu-content-area" class="edu-grid"></div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="edu-lightbox" id="eduLightbox">
-    <div class="edu-lightbox-backdrop" id="eduLightboxBackdrop"></div>
-    <div class="edu-lightbox-content">
-      <div class="edu-lightbox-counter" id="eduLightboxCounter">1 / 1</div>
-      <button class="edu-lightbox-close" id="eduLightboxClose">×</button>
-
-      <div class="edu-lightbox-stage">
-        <button class="edu-lightbox-nav" id="eduPrevBtn" type="button" aria-label="이전 이미지">‹</button>
-
-        <div class="edu-lightbox-img-wrap">
-          <img id="eduLightboxImg" class="edu-lightbox-img" src="" alt="확대 이미지">
+    <section id="test-view" class="view-section hidden-view section">
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">테스트</h2>
+            <p class="section-desc">교육 후 이해도를 점검합니다.</p>
+          </div>
+          <div class="badge" id="test-count-badge">0문항</div>
         </div>
 
-        <button class="edu-lightbox-nav" id="eduNextBtn" type="button" aria-label="다음 이미지">›</button>
+        <div id="test-question-area" class="test-box"></div>
+
+        <div class="submit-row">
+          <button class="cta primary" onclick="submitTest()">제출하기</button>
+          <button class="cta secondary" onclick="resetTest()">다시풀기</button>
+        </div>
+
+        <div id="test-result-box" class="result-box">
+          <h3 class="result-title" id="test-result-title">결과</h3>
+          <p class="result-desc" id="test-result-desc"></p>
+        </div>
       </div>
+    </section>
+
+    <div class="footer">유림 텔레콤 현장대응 SOP</div>
+  </main>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" onclick="closeLightbox(event)">×</button>
+      <img id="lightbox-image" src="" alt="확대 이미지">
     </div>
   </div>
 
   <script>
-    function openSection(sectionId) {
-      const home = document.getElementById("home");
-      const topBar = document.getElementById("top-bar");
+    const STORAGE_KEY = "yurim_telecom_admin_data_v1";
 
-      if (home) home.classList.remove("active");
-      if (topBar) topBar.classList.add("visible");
+    const defaultData = {
+      home: {
+        badge: "✨ 실전형 신입 교육 포털",
+        title: "유림 텔레콤 현장대응 SOP",
+        shortcut1Title: "SOP 바로가기",
+        shortcut1Desc: "상황별 응대 매뉴얼을 바로 확인합니다.",
+        shortcut2Title: "상품자료 보기",
+        shortcut2Desc: "주요 상품과 설명 포인트를 빠르게 확인합니다.",
+        shortcut3Title: "테스트 시작",
+        shortcut3Desc: "교육 후 이해도 점검을 바로 진행합니다."
+      },
+      sop: [],
+      edu: [],
+      test: []
+    };
 
-      document.querySelectorAll(".section-content").forEach(sec => sec.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    let state = structuredClone(defaultData);
+    let currentChapter = "";
+    let currentTopic = "";
+    let dynamicAnswerKey = {};
 
-      const section = document.getElementById(sectionId);
-      if (section) section.classList.add("active");
+    function safeText(v) {
+      return v == null ? "" : String(v).trim();
+    }
 
-      const targetTab = document.getElementById("tab-" + sectionId);
-      if (targetTab) targetTab.classList.add("active");
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
 
-      if (sectionId === "test" && typeof resetTestView === "function") {
-        resetTestView();
+    function escapeJs(value = "") {
+      return String(value)
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'")
+        .replaceAll('"', '\\"')
+        .replaceAll("\n", "\\n");
+    }
+
+    function uniq(arr) {
+      return [...new Set(arr)];
+    }
+
+    function slugify(str = "") {
+      return String(str).trim().toLowerCase().replace(/[^\w가-힣]+/g, "-");
+    }
+
+    function toArrayText(v) {
+      if (!v) return [];
+      if (Array.isArray(v)) return v.filter(Boolean);
+      return String(v).split(/[,|#]/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function normalizeImageUrl(url = "") {
+      const raw = safeText(url);
+      if (!raw) return "";
+
+      if (/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(raw)) return raw;
+
+      const imgurPageMatch = raw.match(/^https?:\/\/(?:www\.)?imgur\.com\/([a-zA-Z0-9]+)$/i);
+      if (imgurPageMatch?.[1]) return `https://i.imgur.com/${imgurPageMatch[1]}.jpg`;
+
+      if (raw.includes("drive.google.com")) {
+        const fileMatch = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (fileMatch?.[1]) return `https://drive.google.com/thumbnail?id=${fileMatch[1]}&sz=w2000`;
+
+        const openMatch = raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (openMatch?.[1]) return `https://drive.google.com/thumbnail?id=${openMatch[1]}&sz=w2000`;
+
+        const ucMatch = raw.match(/uc\?export=(?:view|download)&id=([a-zA-Z0-9_-]+)/);
+        if (ucMatch?.[1]) return `https://drive.google.com/thumbnail?id=${ucMatch[1]}&sz=w2000`;
+      }
+
+      return raw;
+    }
+
+    function normalizeVideoUrl(url = "") {
+      const raw = safeText(url);
+      if (!raw) return "";
+
+      if (raw.includes("youtube.com/watch?v=")) {
+        const id = raw.split("v=")[1]?.split("&")[0];
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+
+      if (raw.includes("youtu.be/")) {
+        const id = raw.split("youtu.be/")[1]?.split("?")[0];
+        if (id) return `https://www.youtube.com/embed/${id}`;
+      }
+
+      return raw;
+    }
+
+    function renderVideo(url) {
+      const videoUrl = normalizeVideoUrl(url);
+      if (!videoUrl) return "";
+
+      if (videoUrl.includes("youtube.com/embed/")) {
+        return `
+          <div class="video-wrap">
+            <iframe class="video-frame" src="${videoUrl}" allowfullscreen></iframe>
+          </div>
+        `;
+      }
+
+      if (/\.mp4(\?.*)?$/i.test(videoUrl) || /\.webm(\?.*)?$/i.test(videoUrl)) {
+        return `
+          <div class="video-wrap">
+            <video class="video-native" controls src="${videoUrl}"></video>
+          </div>
+        `;
+      }
+
+      return "";
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) state = JSON.parse(raw);
+      } catch (e) {
+        state = structuredClone(defaultData);
       }
     }
 
-    function goHome() {
-      const home = document.getElementById("home");
-      const topBar = document.getElementById("top-bar");
-
-      if (home) home.classList.add("active");
-      if (topBar) topBar.classList.remove("visible");
-
-      document.querySelectorAll(".section-content").forEach(sec => sec.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    function syncHeaderHeight() {
+      const topbar = document.querySelector(".topbar");
+      if (!topbar) return;
+      document.documentElement.style.setProperty("--header-height", `${topbar.offsetHeight}px`);
     }
 
-    function switchTab(tabName, event) {
-      const home = document.getElementById("home");
-      const topBar = document.getElementById("top-bar");
+    function setView(view) {
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
 
-      if (home) home.classList.remove("active");
-      if (topBar) topBar.classList.add("visible");
+      document.getElementById("home-view").classList.toggle("hidden-view", view !== "home");
+      document.getElementById("sop-view").classList.toggle("hidden-view", view !== "sop");
+      document.getElementById("edu-view").classList.toggle("hidden-view", view !== "edu");
+      document.getElementById("test-view").classList.toggle("hidden-view", view !== "test");
 
-      document.querySelectorAll(".section-content").forEach(sec => sec.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      syncHeaderHeight();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
+    function applyHome() {
+      const home = state.home || defaultData.home;
+      document.getElementById("home-badge").textContent = home.badge || defaultData.home.badge;
+      document.getElementById("home-title").textContent = home.title || defaultData.home.title;
+      document.getElementById("home-shortcut1-title").textContent = home.shortcut1Title || defaultData.home.shortcut1Title;
+      document.getElementById("home-shortcut1-desc").textContent = home.shortcut1Desc || defaultData.home.shortcut1Desc;
+      document.getElementById("home-shortcut2-title").textContent = home.shortcut2Title || defaultData.home.shortcut2Title;
+      document.getElementById("home-shortcut2-desc").textContent = home.shortcut2Desc || defaultData.home.shortcut2Desc;
+      document.getElementById("home-shortcut3-title").textContent = home.shortcut3Title || defaultData.home.shortcut3Title;
+      document.getElementById("home-shortcut3-desc").textContent = home.shortcut3Desc || defaultData.home.shortcut3Desc;
+    }
+
+    function renderChapterList() {
+      const list = document.getElementById("chapter-list");
+      const chapters = uniq((state.sop || []).map(item => item.chapter).filter(Boolean));
+
+      if (!chapters.length) {
+        list.innerHTML = `<div class="empty">등록된 챕터가 없습니다.</div>`;
+        return;
+      }
+
+      if (!currentChapter || !chapters.includes(currentChapter)) currentChapter = chapters[0];
+
+      list.innerHTML = chapters.map(ch => `
+        <button class="chapter-btn ${currentChapter === ch ? "active" : ""}" onclick="selectChapter('${escapeJs(ch)}')">
+          ${escapeHtml(ch)}
+        </button>
+      `).join("");
+    }
+
+    function renderTopicList() {
+      const list = document.getElementById("topic-list");
+      const topics = uniq(
+        (state.sop || [])
+          .filter(item => item.chapter === currentChapter)
+          .map(item => item.topicTitle)
+          .filter(Boolean)
+      );
+
+      if (!topics.length) {
+        currentTopic = "";
+        list.innerHTML = `<div class="empty">등록된 주제가 없습니다.</div>`;
+        return;
+      }
+
+      if (!currentTopic || !topics.includes(currentTopic)) currentTopic = topics[0];
+
+      list.innerHTML = topics.map(tp => `
+        <button class="topic-btn ${currentTopic === tp ? "active" : ""}" onclick="selectTopic('${escapeJs(tp)}')">
+          ${escapeHtml(tp)}
+        </button>
+      `).join("");
+    }
+
+    function renderSopSlides() {
+      const area = document.getElementById("sop-slide-area");
+      const badge = document.getElementById("sop-count-badge");
+      const info = document.getElementById("search-result-info");
+      const keyword = safeText(document.getElementById("sop-search").value).toLowerCase();
+
+      let filtered = [...(state.sop || [])];
+
+      if (keyword) {
+        filtered = filtered.filter(item => {
+          const joined = [
+            item.chapter,
+            item.topicTitle,
+            item.topicSummary,
+            item.detailText,
+            ...(toArrayText(item.tags))
+          ].join(" ").toLowerCase();
+          return joined.includes(keyword);
+        });
+        info.textContent = filtered.length ? `"${keyword}" 검색 결과 ${filtered.length}개` : `"${keyword}" 검색 결과가 없습니다.`;
       } else {
-        const targetTab = document.getElementById("tab-" + tabName);
-        if (targetTab) targetTab.classList.add("active");
+        filtered = filtered.filter(item => item.chapter === currentChapter && (!currentTopic || item.topicTitle === currentTopic));
+        info.textContent = "";
       }
 
-      const section = document.getElementById(tabName);
-      if (section) section.classList.add("active");
+      filtered.sort((a,b) => (Number(a.order)||0) - (Number(b.order)||0));
+      badge.textContent = `${filtered.length}개 항목`;
 
-      if (tabName === "test" && typeof resetTestView === "function") {
-        resetTestView();
+      if (!filtered.length) {
+        area.innerHTML = `<div class="empty">표시할 SOP 항목이 없습니다.</div>`;
+        return;
+      }
+
+      area.innerHTML = filtered.map(item => {
+        const tags = toArrayText(item.tags);
+        const images = [item.image1, item.image2, item.image3].map(normalizeImageUrl).filter(Boolean);
+
+        return `
+          <article class="slide-card" id="topic-${slugify(item.topicTitle)}">
+            <div class="slide-top">
+              <div class="slide-meta">
+                ${item.chapter ? `<span class="chip">${escapeHtml(item.chapter)}</span>` : ""}
+                ${item.topicTitle ? `<span class="chip">${escapeHtml(item.topicTitle)}</span>` : ""}
+                ${item.order ? `<span class="chip">순서 ${escapeHtml(item.order)}</span>` : ""}
+              </div>
+
+              <h3 class="slide-title">${escapeHtml(item.topicTitle || "제목 없음")}</h3>
+              <p class="slide-summary">${escapeHtml(item.topicSummary || "내용이 없습니다.")}</p>
+              ${item.detailText ? `<div class="slide-detail">${escapeHtml(item.detailText)}</div>` : ""}
+
+              ${tags.length ? `
+                <div class="tag-row">
+                  ${tags.map(tag => `<button class="tag-link" onclick="jumpToTopicTag('${escapeJs(tag)}')"># ${escapeHtml(tag)}</button>`).join("")}
+                </div>
+              ` : ""}
+            </div>
+
+            ${renderVideo(item.video)}
+
+            ${images.length ? `
+              <div class="gallery">
+                ${images.map(img => `
+                  <img
+                    src="${img}"
+                    alt="${escapeHtml(item.topicTitle || 'SOP 이미지')}"
+                    onclick="openLightbox('${escapeJs(img)}')"
+                    onerror="this.style.display='none'"
+                  >
+                `).join("")}
+              </div>
+            ` : ""}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSop() {
+      renderChapterList();
+      renderTopicList();
+      renderSopSlides();
+    }
+
+    function selectChapter(chapter) {
+      currentChapter = chapter;
+      currentTopic = "";
+      renderSop();
+    }
+
+    function selectTopic(topic) {
+      currentTopic = topic;
+      renderSop();
+    }
+
+    function resetSopFilter() {
+      document.getElementById("sop-search").value = "";
+      currentChapter = uniq((state.sop || []).map(v => v.chapter).filter(Boolean))[0] || "";
+      currentTopic = "";
+      renderSop();
+    }
+
+    function jumpToTopicTag(tag) {
+      const matched = (state.sop || []).find(item =>
+        safeText(item.topicTitle).toLowerCase() === safeText(tag).toLowerCase()
+      );
+
+      if (!matched) {
+        alert("연결된 주제를 찾지 못했습니다. 태그명을 topicTitle과 동일하게 맞춰주세요.");
+        return;
+      }
+
+      document.getElementById("sop-search").value = "";
+      currentChapter = matched.chapter;
+      currentTopic = matched.topicTitle;
+      setView("sop");
+      renderSop();
+
+      setTimeout(() => {
+        const target = document.getElementById(`topic-${slugify(matched.topicTitle)}`);
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    }
+
+    function renderEdu() {
+      const area = document.getElementById("edu-content-area");
+      const data = state.edu || [];
+      document.getElementById("edu-count-badge").textContent = `${data.length}개 항목`;
+
+      if (!data.length) {
+        area.innerHTML = `<div class="empty">등록된 상품자료가 없습니다.</div>`;
+        return;
+      }
+
+      area.innerHTML = data.map(item => {
+        const image = normalizeImageUrl(item.image1);
+        const points = [item.point1, item.point2, item.point3, item.point4].filter(Boolean);
+
+        return `
+          <article class="edu-card">
+            ${image ? `
+              <img
+                class="edu-thumb"
+                src="${image}"
+                alt="${escapeHtml(item.title || '상품자료 이미지')}"
+                onclick="openLightbox('${escapeJs(image)}')"
+                onerror="this.outerHTML='<div class=&quot;edu-thumb&quot; style=&quot;display:grid;place-items:center;color:#94a5c8;font-weight:700;&quot;>이미지 없음</div>'"
+              >
+            ` : `
+              <div class="edu-thumb" style="display:grid;place-items:center;color:#94a5c8;font-weight:700;">이미지 없음</div>
+            `}
+
+            ${renderVideo(item.video)}
+
+            <div class="edu-body">
+              ${item.category ? `<div class="edu-cat">${escapeHtml(item.category)}</div>` : ""}
+              <h3 class="edu-title">${escapeHtml(item.title || "제목 없음")}</h3>
+              <p class="edu-desc">${escapeHtml(item.description || "설명이 없습니다.")}</p>
+
+              ${points.length ? `
+                <ul class="point-list">
+                  ${points.map(point => `<li>${escapeHtml(point)}</li>`).join("")}
+                </ul>
+              ` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderTest() {
+      const area = document.getElementById("test-question-area");
+      const data = [...(state.test || [])].sort((a,b) => (Number(a.order)||0) - (Number(b.order)||0));
+      document.getElementById("test-count-badge").textContent = `${data.length}문항`;
+
+      if (!data.length) {
+        area.innerHTML = `<div class="empty">등록된 테스트 문항이 없습니다.</div>`;
+        return;
+      }
+
+      dynamicAnswerKey = {};
+
+      area.innerHTML = data.map((q, index) => {
+        const no = index + 1;
+        dynamicAnswerKey[`q${no}`] = {
+          answer: String(q.answer || "").trim(),
+          explanation: q.explanation || "",
+          title: q.title || ""
+        };
+
+        const choices = [q.choice1, q.choice2, q.choice3, q.choice4].filter(Boolean);
+
+        return `
+          <div class="question">
+            <h4>${no}. ${escapeHtml(q.title || "")}</h4>
+            <div class="options">
+              ${choices.map((choice, i) => `
+                <label class="option">
+                  <input type="radio" name="q${no}" value="${i + 1}">
+                  <span>${escapeHtml(choice)}</span>
+                </label>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("test-result-box").style.display = "none";
+    }
+
+    function submitTest() {
+      const total = Object.keys(dynamicAnswerKey).length;
+      if (!total) return;
+
+      let correct = 0;
+      const wrongList = [];
+
+      for (let i = 1; i <= total; i++) {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const picked = selected ? selected.value : "";
+        const answer = dynamicAnswerKey[`q${i}`]?.answer || "";
+
+        if (String(picked) === String(answer)) {
+          correct++;
+        } else {
+          wrongList.push({
+            no: i,
+            title: dynamicAnswerKey[`q${i}`]?.title || "",
+            answer,
+            explanation: dynamicAnswerKey[`q${i}`]?.explanation || "해설 없음"
+          });
+        }
+      }
+
+      const score = Math.round((correct / total) * 100);
+      document.getElementById("test-result-title").textContent = `결과: ${correct} / ${total} 정답 (${score}점)`;
+      document.getElementById("test-result-desc").textContent =
+        wrongList.length
+          ? "오답 문항\n\n" + wrongList.map(item => `${item.no}번. ${item.title}\n정답: ${item.answer}번\n해설: ${item.explanation}`).join("\n\n")
+          : "전부 정답입니다. 아주 좋습니다.";
+
+      const resultBox = document.getElementById("test-result-box");
+      resultBox.style.display = "block";
+      resultBox.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function resetTest() {
+      document.querySelectorAll('#test-question-area input[type="radio"]').forEach(input => input.checked = false);
+      document.getElementById("test-result-box").style.display = "none";
+    }
+
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById("lightbox-image").src = src;
+      document.getElementById("lightbox").classList.add("show");
+    }
+
+    function closeLightbox(e) {
+      if (e.target.id === "lightbox" || e.target.classList.contains("lightbox-close")) {
+        document.getElementById("lightbox").classList.remove("show");
+        document.getElementById("lightbox-image").src = "";
       }
     }
-  </script>
 
-  <script src="js/main.js?v=4" defer></script>
-  <script src="js/education.js?v=4" defer></script>
-  <script src="js/test.js?v=8" defer></script>
+    function init() {
+      loadState();
+      applyHome();
+
+      currentChapter = uniq((state.sop || []).map(v => v.chapter).filter(Boolean))[0] || "";
+      currentTopic = "";
+
+      renderSop();
+      renderEdu();
+      renderTest();
+      syncHeaderHeight();
+    }
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => setView(btn.dataset.view));
+    });
+
+    document.getElementById("sop-search").addEventListener("input", renderSop);
+
+    window.addEventListener("load", syncHeaderHeight);
+    window.addEventListener("resize", syncHeaderHeight);
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
 </body>
 </html>
